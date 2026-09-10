@@ -32,22 +32,30 @@
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
-                        <h1 id="appTitle" class="text-xl font-bold tracking-wide">PENGAJUAN PAJAK JUNI 2026</h1>
+                        <h1 id="appTitle" class="text-xl font-bold tracking-wide">PENGAJUAN PAJAK BPHTB & SSP</h1>
                         <button onclick="editAppTitle()" class="text-slate-400 hover:text-white transition" title="Ubah Judul"><i class="fa-solid fa-pen text-xs"></i></button>
                     </div>
                     <div class="flex items-center gap-2">
-                        <p id="appSubtitle" class="text-xs text-slate-300">Sistem Pengelolaan BPHTB & SSP</p>
-                        <button onclick="editAppSubtitle()" class="text-slate-400 hover:text-white transition" title="Ubah Sub-judul"><i class="fa-solid fa-pen text-xs"></i></button>
+                        <p id="appSubtitle" class="text-xs text-slate-300">Sistem Pengelolaan Multiuser Realtime</p>
+                        <span id="syncBadge" class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-red-900/60 text-red-300 border border-red-700/50 flex items-center gap-1">
+                            <i class="fa-solid fa-triangle-exclamation"></i> Offline
+                        </span>
+                        <button onclick="editAppSubtitle()" class="text-slate-400 hover:text-white transition ml-1" title="Ubah Sub-judul"><i class="fa-solid fa-pen text-xs"></i></button>
                     </div>
                 </div>
             </div>
 
             <div class="flex items-center gap-2">
+                <!-- REVISI 5: TOMBOL KONEKSI DATABASE & GITHUB -->
+                <button onclick="openConfigModal()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow transition">
+                    <i class="fa-solid fa-gear"></i> Koneksi Database
+                </button>
                 <button onclick="exportCSV()" class="px-3 py-2 bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow transition">
                     <i class="fa-solid fa-file-csv"></i> Export CSV
                 </button>
-                <button onclick="printReport()" class="px-3 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow transition">
-                    <i class="fa-solid fa-print"></i> Cetak Laporan
+                <!-- REVISI 1: TOMBOL PRINT ADAPTIF CEKLIS -->
+                <button id="btnPrint" onclick="printReport()" class="px-3 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow transition">
+                    <i class="fa-solid fa-print"></i> <span id="printBtnLabel">Cetak Semua</span>
                 </button>
                 <button onclick="openDataModal()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow transition">
                     <i class="fa-solid fa-plus"></i> Tambah Data
@@ -139,6 +147,10 @@
             <table class="w-full text-left text-xs border-collapse">
                 <thead class="bg-slate-100 text-slate-700 uppercase font-bold text-[10px] tracking-wider border-b border-slate-200">
                     <tr>
+                        <!-- REVISI 1: CHECKBOX ALL -->
+                        <th class="p-2 text-center w-8">
+                            <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)" class="rounded text-blue-600 focus:ring-blue-500 cursor-pointer">
+                        </th>
                         <th class="p-2 text-center">NO</th>
                         <th class="p-2">NAMA KONSUMEN</th>
                         <th class="p-2 text-center">NOP</th>
@@ -147,11 +159,13 @@
                         <th class="p-2 text-center">LUAS</th>
                         <th class="p-2 text-center">KET</th>
                         <th class="p-2 text-center">PERUM</th>
+                        <!-- REVISI 2: URUTAN HRG/M2 -> HARGA JUAL -> XBPHTB -> XSSP -->
                         <th class="p-2 text-right">HRG/M2</th>
-                        <th class="p-2 text-right text-indigo-700">XSSP</th>
+                        <th class="p-2 text-right font-bold text-slate-800">HARGA JUAL</th>
                         <th class="p-2 text-right text-amber-700">XBPHTB</th>
-                        <th class="p-2 text-right">HARGA JUAL</th>
-                        <th class="p-2 text-right">VALIDASI BIAYA INPUT</th>
+                        <th class="p-2 text-right text-indigo-700">XSSP</th>
+                        <!-- REVISI 3: VALIDASI UBAH KE VALIDASI BPHTB -->
+                        <th class="p-2 text-right">VALIDASI BPHTB</th>
                         <th class="p-2 text-right">BIAYA INPUT</th>
                         <th class="p-2 text-right">BIAYA ADM</th>
                         <th class="p-2 text-center">NOTARIS</th>
@@ -165,8 +179,6 @@
                 </tbody>
             </table>
         </div>
-
-        <p class="text-[11px] text-slate-500 italic">* Catatan: Nilai BPHTB Tipe STD dikurangi NOPTKP Rp 80.000.000. Nilai Validasi/Biaya Input merupakan harga bersih potongan pajak 2.5%.</p>
     </main>
 
     <!-- PRINT VIEW TEMPLATE (Print Only) -->
@@ -189,10 +201,10 @@
                     <th>KET</th>
                     <th>PERUM</th>
                     <th>HRG/M2</th>
-                    <th>XSSP</th>
-                    <th>XBPHTB</th>
                     <th>HARGA JUAL</th>
-                    <th>VALIDASI BIAYA INPUT</th>
+                    <th>XBPHTB</th>
+                    <th>XSSP</th>
+                    <th>VALIDASI BPHTB</th>
                     <th>BIAYA INPUT</th>
                     <th>BIAYA ADM</th>
                     <th>NOTARIS</th>
@@ -203,12 +215,6 @@
                 <!-- Dynamic Print Rows -->
             </tbody>
         </table>
-
-        <div class="mt-3 p-2 border border-slate-400 text-[9px] bg-slate-50">
-            <p class="font-bold">* KETERANGAN PENTING UNTUK TIM KEUANGAN:</p>
-            <p>- BPHTB Tipe STD telah memperhitungkan pengurang NOPTKP sebesar Rp 80.000.000.</p>
-            <p>- Nilai pada kolom <strong>VALIDASI BIAYA INPUT</strong> dan <strong>BIAYA INPUT</strong> di atas merupakan hasil nilai transaksi bersih setelah dikenakan <strong>potongan pajak sebesar 2.5%</strong>.</p>
-        </div>
 
         <div class="mt-6 flex justify-between text-center text-[9px]">
             <div class="w-32">
@@ -264,7 +270,7 @@
 
                     <div>
                         <label class="block font-semibold text-slate-700 mb-1">Perumahan</label>
-                        <input type="text" id="inputPerum" required list="perumahanList" placeholder="Ketik atau pilih nama perumahan..." class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase font-medium">
+                        <input type="text" id="inputPerum" required list="perumahanList" placeholder="Ketik/pilih perumahan..." class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase font-medium">
                         <datalist id="perumahanList"></datalist>
                     </div>
 
@@ -280,17 +286,17 @@
 
                     <div>
                         <label class="block font-semibold text-slate-700 mb-1">Luas Tanah (m²)</label>
-                        <input type="number" id="inputLuas" required oninput="calculatePajak()" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="number" id="inputLuas" required oninput="onLuasOrHargaM2Change()" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
 
                     <div>
                         <label class="block font-semibold text-slate-700 mb-1">Harga / m² (Rp)</label>
-                        <input type="number" id="inputHargaM2" required oninput="calculatePajak()" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="number" id="inputHargaM2" required oninput="onLuasOrHargaM2Change()" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
 
                     <div>
-                        <label class="block font-semibold text-slate-700 mb-1">Harga Jual (Rp)</label>
-                        <input type="number" id="inputHargaJual" readonly class="w-full px-3 py-2 border rounded-lg bg-slate-100 font-bold text-slate-700">
+                        <label class="block font-semibold text-blue-900 mb-1">Harga Jual (Rp) <span class="text-[10px] font-normal text-slate-500">(Dapat Di-edit)</span></label>
+                        <input type="number" id="inputHargaJual" required oninput="onHargaJualManualChange()" class="w-full px-3 py-2 border-2 border-blue-300 rounded-lg font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
 
                     <div>
@@ -300,6 +306,11 @@
                             <option value="HOOK">HOOK</option>
                             <option value="KHUSUS">KHUSUS</option>
                         </select>
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Potongan NOPTKP (Rp)</label>
+                        <input type="number" id="inputNOPTKP" value="80000000" oninput="calculatePajak()" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
 
                     <div>
@@ -313,31 +324,56 @@
                     </div>
                 </div>
 
-                <!-- NOMINAL PAJAK INPUT -->
-                <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                        <label class="block font-semibold text-amber-800 mb-1">Nominal XBPHTB (Rp)</label>
-                        <input type="number" id="customBPHTB" oninput="manualNominalChange()" class="w-full px-3 py-1.5 border rounded focus:outline-none focus:ring-2 focus:ring-amber-500 font-bold text-amber-700">
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-indigo-800 mb-1">Nominal XSSP (Rp)</label>
-                        <input type="number" id="customSSP" oninput="manualNominalChange()" class="w-full px-3 py-1.5 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-indigo-700">
+                <!-- PENGATURAN TARIF & PAJAK -->
+                <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-3">
+                    <p class="font-bold text-slate-800 text-[11px] border-b pb-1">Pengaturan Persentase & Nominal Pajak</p>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="bg-amber-50/60 p-2.5 rounded-lg border border-amber-200">
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="font-bold text-amber-900">Tarif BPHTB (%)</label>
+                                <input type="number" step="0.1" id="rateBPHTB" value="5" oninput="calculatePajak()" class="w-16 px-2 py-1 text-center border rounded bg-white font-bold text-amber-800">
+                            </div>
+                            <label class="block font-semibold text-amber-800 text-[10px] mb-1">Nominal BPHTB (Rp)</label>
+                            <input type="number" id="customBPHTB" oninput="manualNominalChange()" class="w-full px-3 py-1.5 border rounded focus:outline-none focus:ring-2 focus:ring-amber-500 font-bold text-amber-800 bg-white">
+                        </div>
+
+                        <div class="bg-indigo-50/60 p-2.5 rounded-lg border border-indigo-200">
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="font-bold text-indigo-900">Tarif SSP / PPh (%)</label>
+                                <input type="number" step="0.1" id="rateSSP" value="2.5" oninput="calculatePajak()" class="w-16 px-2 py-1 text-center border rounded bg-white font-bold text-indigo-800">
+                            </div>
+                            <label class="block font-semibold text-indigo-800 text-[10px] mb-1">Nominal SSP (Rp)</label>
+                            <input type="number" id="customSSP" oninput="manualNominalChange()" class="w-full px-3 py-1.5 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-indigo-800 bg-white">
+                        </div>
                     </div>
                 </div>
 
-                <!-- ESTIMASI OPERASIONAL -->
-                <div class="bg-slate-100 p-3 rounded-lg border border-slate-200 text-[11px] grid grid-cols-3 gap-2 text-center">
-                    <div>
-                        <span class="text-slate-500 block">Validasi (Nett):</span>
-                        <span id="calcValidasi" class="font-bold text-slate-700">Rp 48.750</span>
+                <!-- REVISI 3 & 4: VALIDASI BPHTB & POTONG BUNGA 2,5% -->
+                <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-2">
+                    <div class="flex justify-between items-center border-b pb-1">
+                        <p class="font-bold text-slate-800 text-[11px]">Biaya Operasional</p>
+                        <!-- REVISI 4: CHECKBOX POTONG BUNGA 2,5% -->
+                        <label class="flex items-center gap-1.5 text-[11px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded border border-red-200 cursor-pointer">
+                            <input type="checkbox" id="chkPotongBunga" onchange="applyBungaCut()" class="rounded text-red-600 focus:ring-red-500">
+                            Potong Bunga 2.5%
+                        </label>
                     </div>
-                    <div>
-                        <span class="text-slate-500 block">Biaya Input (Nett):</span>
-                        <span id="calcInput" class="font-bold text-slate-700">Rp 48.750</span>
-                    </div>
-                    <div>
-                        <span class="text-slate-500 block">Biaya ADM:</span>
-                        <span id="calcADM" class="font-bold text-slate-700">Rp 2.500</span>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <!-- REVISI 3: VALIDASI BPHTB -->
+                            <label class="block font-semibold text-slate-600 text-[10px] mb-1">Validasi BPHTB (Nett)</label>
+                            <input type="number" id="inputValidasi" value="48750" class="w-full px-2.5 py-1.5 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold text-slate-700 bg-white">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 text-[10px] mb-1">Biaya Input (Nett)</label>
+                            <input type="number" id="inputBiayaInput" value="48750" class="w-full px-2.5 py-1.5 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold text-slate-700 bg-white">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 text-[10px] mb-1">Biaya ADM</label>
+                            <input type="number" id="inputADM" value="2500" class="w-full px-2.5 py-1.5 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold text-slate-700 bg-white">
+                        </div>
                     </div>
                 </div>
 
@@ -346,6 +382,45 @@
                     <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg">Simpan Data</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- REVISI 5: MODAL CONFIG KONEKSI DATABASE & GITHUB -->
+    <div id="configModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden">
+            <div class="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-800 text-white">
+                <h3 class="font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-database text-amber-400"></i> Koneksi Project Database & GitHub
+                </h3>
+                <button onclick="closeConfigModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <div class="p-4 space-y-4 text-xs">
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">1. Firebase / Remote DB Config (JSON)</label>
+                    <textarea id="dbConfigJson" rows="4" placeholder='{"apiKey": "AIzaSy...", "authDomain": "...firebaseapp.com", "projectId": "..."}' class="w-full p-2.5 border rounded-lg font-mono text-[11px] bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                </div>
+
+                <div class="border-t pt-3">
+                    <label class="block font-bold text-slate-700 mb-1"><i class="fa-brands fa-github text-slate-800"></i> 2. GitHub Sync Integration</label>
+                    <div class="space-y-2">
+                        <input type="text" id="ghToken" placeholder="GitHub Personal Access Token (PAT)" class="w-full px-3 py-1.5 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" id="ghOwner" placeholder="Owner / Username" class="w-full px-3 py-1.5 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <input type="text" id="ghRepo" placeholder="Repository Name" class="w-full px-3 py-1.5 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <input type="text" id="ghPath" placeholder="Path file (cth: data/pajak.json)" class="w-full px-3 py-1.5 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 border-t border-slate-200 flex justify-between items-center bg-slate-50">
+                <button type="button" onclick="useDefaultConfig()" class="text-red-600 font-bold hover:underline">Gunakan Config Default</button>
+                <div class="flex gap-2">
+                    <button type="button" onclick="closeConfigModal()" class="px-3 py-1.5 border rounded hover:bg-slate-200">Batal</button>
+                    <button type="button" onclick="saveConfig()" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded">Simpan Config</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -446,10 +521,8 @@
 
     <!-- JAVASCRIPT APP CODE -->
     <script>
-        const NOPTKP_STD = 80000000; // Rp 80.000.000 (Acuan Pengurang BPHTB Tipe STD)
-
-        let currentTitle = localStorage.getItem('app_title') || 'PENGAJUAN PAJAK JUNI 2026';
-        let currentSubtitle = localStorage.getItem('app_subtitle') || 'Sistem Pengelolaan BPHTB & SSP';
+        let currentTitle = localStorage.getItem('app_title') || 'PENGAJUAN PAJAK BPHTB & SSP';
+        let currentSubtitle = localStorage.getItem('app_subtitle') || 'Sistem Pengelolaan Multiuser Realtime';
 
         let consumers = JSON.parse(localStorage.getItem('pajak_consumers')) || [
             {
@@ -462,26 +535,58 @@
                 perum: "GSP",
                 hargaM2: 1200000,
                 hargaJual: 185000000,
-                bphtb: 5250000, // (185jt - 80jt) * 5% = 5.250.000
-                ssp: 4625000,   // 185jt * 2.5% = 4.625.000
+                rateBPHTB: 5,
+                rateSSP: 2.5,
+                noptkp: 80000000,
+                bphtb: 5250000,
+                ssp: 4625000,
                 validasi: 48750,
                 biayaInput: 48750,
                 adm: 2500,
+                potongBunga: false,
                 notaris: "NANANG",
+                jenisPengajuan: "LENGKAP",
+                keterangan: "-",
+                docs: { ssp_bayar: null, ssp_validasi: null, bphtb_bayar: null, bphtb_validasi: null }
+            },
+            {
+                nama: "FAFA",
+                nop: "66",
+                blok: "F3",
+                kav: "12",
+                luas: 60,
+                ket: "HOOK",
+                perum: "PW",
+                hargaM2: 1200000,
+                hargaJual: 80000000,
+                rateBPHTB: 5,
+                rateSSP: 2.5,
+                noptkp: 80000000,
+                bphtb: 4000000,
+                ssp: 2000000,
+                validasi: 50000,
+                biayaInput: 50000,
+                adm: 2500,
+                potongBunga: false,
+                notaris: "INDA",
                 jenisPengajuan: "LENGKAP",
                 keterangan: "-",
                 docs: { ssp_bayar: null, ssp_validasi: null, bphtb_bayar: null, bphtb_validasi: null }
             }
         ];
 
+        let selectedIndices = new Set();
         let activeConsumerIndex = null;
         let isManualOverride = false;
+        let baseValidasi = 48750;
+        let baseBiayaInput = 48750;
 
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('appTitle').innerText = currentTitle;
             document.getElementById('appSubtitle').innerText = currentSubtitle;
             populateFilterOptions();
             renderTable();
+            checkConfigStatus();
         });
 
         function editAppTitle() {
@@ -506,6 +611,55 @@
             return "Rp " + Number(num || 0).toLocaleString('id-ID');
         }
 
+        /* REVISI 1: FITUR CEKLIS UNTUK PRINT */
+        function toggleSelectAll(master) {
+            selectedIndices.clear();
+            const checkboxes = document.querySelectorAll('.rowCheckbox');
+            checkboxes.forEach(cb => {
+                cb.checked = master.checked;
+                if (master.checked) {
+                    selectedIndices.add(parseInt(cb.dataset.index));
+                }
+            });
+            updatePrintButtonLabel();
+        }
+
+        function toggleRowSelect(index, cb) {
+            if (cb.checked) {
+                selectedIndices.add(index);
+            } else {
+                selectedIndices.delete(index);
+                document.getElementById('selectAllCheckbox').checked = false;
+            }
+            updatePrintButtonLabel();
+        }
+
+        function updatePrintButtonLabel() {
+            const label = document.getElementById('printBtnLabel');
+            if (selectedIndices.size > 0) {
+                label.innerText = `Cetak Pilihan (${selectedIndices.size})`;
+            } else {
+                label.innerText = `Cetak Semua`;
+            }
+        }
+
+        /* REVISI 4: POTONG BUNGA 2.5% BIAYA OPERASIONAL */
+        function applyBungaCut() {
+            const isCut = document.getElementById('chkPotongBunga').checked;
+            let valVal = parseFloat(document.getElementById('inputValidasi').value) || 0;
+            let valInput = parseFloat(document.getElementById('inputBiayaInput').value) || 0;
+
+            if (isCut) {
+                baseValidasi = valVal;
+                baseBiayaInput = valInput;
+                document.getElementById('inputValidasi').value = Math.round(valVal * 0.975);
+                document.getElementById('inputBiayaInput').value = Math.round(valInput * 0.975);
+            } else {
+                document.getElementById('inputValidasi').value = baseValidasi;
+                document.getElementById('inputBiayaInput').value = baseBiayaInput;
+            }
+        }
+
         function handleJenisPengajuanChange() {
             isManualOverride = false;
             calculatePajak();
@@ -515,29 +669,36 @@
             isManualOverride = true;
         }
 
-        /* LOGIKA KALKULASI PAJAK PERBAIKAN */
-        function calculatePajak() {
+        function onLuasOrHargaM2Change() {
             const luas = parseFloat(document.getElementById('inputLuas').value) || 0;
             const hargaM2 = parseFloat(document.getElementById('inputHargaM2').value) || 0;
-            const hargaJual = luas * hargaM2;
-            document.getElementById('inputHargaJual').value = hargaJual;
+            document.getElementById('inputHargaJual').value = luas * hargaM2;
+            calculatePajak();
+        }
 
+        function onHargaJualManualChange() {
+            calculatePajak();
+        }
+
+        function calculatePajak() {
+            const hargaJual = parseFloat(document.getElementById('inputHargaJual').value) || 0;
             const jenis = document.getElementById('inputJenisPengajuan').value;
             const ket = document.getElementById('inputKet').value;
+            const noptkp = parseFloat(document.getElementById('inputNOPTKP').value) || 0;
 
-            // Hitung Dasar BPHTB (Hanya Tipe STD dikurangi NOPTKP)
+            const rateBPHTB = parseFloat(document.getElementById('rateBPHTB').value) || 0;
+            const rateSSP = parseFloat(document.getElementById('rateSSP').value) || 0;
+
             let dppBPHTB = hargaJual;
             if (ket === "STD") {
-                dppBPHTB = Math.max(0, hargaJual - NOPTKP_STD);
+                dppBPHTB = Math.max(0, hargaJual - noptkp);
             }
 
-            let bphtb = Math.round(dppBPHTB * 0.05); // BPHTB 5%
-            let ssp = Math.round(hargaJual * 0.025); // SSP / PPh Final 2.5% Bruto
+            let bphtb = Math.round(dppBPHTB * (rateBPHTB / 100));
+            let ssp = Math.round(hargaJual * (rateSSP / 100));
 
             if (!isManualOverride) {
-                if (jenis === "LENGKAP") {
-                    // nilai bphtb & ssp sesuai kalkulasi di atas
-                } else if (jenis === "BPHTB_ONLY") {
+                if (jenis === "BPHTB_ONLY") {
                     ssp = 0;
                 } else if (jenis === "SSP_ONLY") {
                     bphtb = 0;
@@ -552,14 +713,6 @@
                 document.getElementById('customBPHTB').value = bphtb;
                 document.getElementById('customSSP').value = ssp;
             }
-
-            const validasiNett = 48750; // 50.000 - 2.5%
-            const inputNett = 48750;    // 50.000 - 2.5%
-            const adm = 2500;
-
-            document.getElementById('calcValidasi').innerText = formatRp(validasiNett);
-            document.getElementById('calcInput').innerText = formatRp(inputNett);
-            document.getElementById('calcADM').innerText = formatRp(adm);
         }
 
         function saveData(e) {
@@ -568,10 +721,15 @@
             const index = parseInt(document.getElementById('editIndex').value);
             const luas = parseFloat(document.getElementById('inputLuas').value) || 0;
             const hargaM2 = parseFloat(document.getElementById('inputHargaM2').value) || 0;
-            const hargaJual = luas * hargaM2;
+            const hargaJual = parseFloat(document.getElementById('inputHargaJual').value) || 0;
 
             const bphtb = parseFloat(document.getElementById('customBPHTB').value) || 0;
             const ssp = parseFloat(document.getElementById('customSSP').value) || 0;
+
+            const validasi = parseFloat(document.getElementById('inputValidasi').value) || 0;
+            const biayaInput = parseFloat(document.getElementById('inputBiayaInput').value) || 0;
+            const adm = parseFloat(document.getElementById('inputADM').value) || 0;
+            const potongBunga = document.getElementById('chkPotongBunga').checked;
 
             const newObj = {
                 nama: document.getElementById('inputNama').value.toUpperCase(),
@@ -583,14 +741,18 @@
                 hargaM2: hargaM2,
                 hargaJual: hargaJual,
                 ket: document.getElementById('inputKet').value,
+                noptkp: parseFloat(document.getElementById('inputNOPTKP').value) || 0,
+                rateBPHTB: parseFloat(document.getElementById('rateBPHTB').value) || 5,
+                rateSSP: parseFloat(document.getElementById('rateSSP').value) || 2.5,
                 notaris: document.getElementById('inputNotaris').value.toUpperCase(),
                 jenisPengajuan: document.getElementById('inputJenisPengajuan').value,
                 keterangan: document.getElementById('inputKeterangan').value || "-",
                 bphtb: bphtb,
                 ssp: ssp,
-                validasi: 48750,
-                biayaInput: 48750,
-                adm: 2500,
+                validasi: validasi,
+                biayaInput: biayaInput,
+                adm: adm,
+                potongBunga: potongBunga,
                 docs: (index >= 0 && consumers[index].docs) ? consumers[index].docs : {
                     ssp_bayar: null,
                     ssp_validasi: null,
@@ -615,6 +777,7 @@
             localStorage.setItem('pajak_consumers', JSON.stringify(consumers));
         }
 
+        /* RENDERING TABEL UTAMA */
         function renderTable() {
             const tbody = document.getElementById('tableBody');
             const search = document.getElementById('searchInput').value.toLowerCase();
@@ -639,16 +802,22 @@
                     totalTx++;
                     sumBPHTB += item.bphtb;
                     sumSSP += item.ssp;
-                    sumOp += (item.validasi + item.biayaInput + item.adm);
+                    sumOp += ((item.validasi || 0) + (item.biayaInput || 0) + (item.adm || 0));
 
                     let attachedCount = 0;
                     if (item.docs) {
                         Object.values(item.docs).forEach(doc => { if (doc) attachedCount++; });
                     }
 
+                    const isChecked = selectedIndices.has(index) ? 'checked' : '';
+
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-50 border-b transition text-[11px]";
+                    /* REVISI 2: URUTAN KOLOM REVISI (HRG/M2 -> HARGA JUAL -> XBPHTB -> XSSP) */
                     tr.innerHTML = `
+                        <td class="p-2 text-center">
+                            <input type="checkbox" data-index="${index}" ${isChecked} onchange="toggleRowSelect(${index}, this)" class="rowCheckbox rounded text-blue-600 focus:ring-blue-500 cursor-pointer">
+                        </td>
                         <td class="p-2 text-center font-medium text-slate-500">${totalTx}</td>
                         <td class="p-2 font-bold text-slate-800">${item.nama}</td>
                         <td class="p-2 text-center">${item.nop}</td>
@@ -658,9 +827,9 @@
                         <td class="p-2 text-center"><span class="px-1.5 py-0.5 bg-slate-100 border rounded text-[10px]">${item.ket}</span></td>
                         <td class="p-2 text-center font-bold text-blue-600">${item.perum}</td>
                         <td class="p-2 text-right">${formatRp(item.hargaM2)}</td>
-                        <td class="p-2 text-right font-bold text-indigo-600">${formatRp(item.ssp)}</td>
+                        <td class="p-2 text-right font-bold text-slate-800">${formatRp(item.hargaJual)}</td>
                         <td class="p-2 text-right font-bold text-amber-600">${formatRp(item.bphtb)}</td>
-                        <td class="p-2 text-right font-bold">${formatRp(item.hargaJual)}</td>
+                        <td class="p-2 text-right font-bold text-indigo-600">${formatRp(item.ssp)}</td>
                         <td class="p-2 text-right text-slate-600">${formatRp(item.validasi)}</td>
                         <td class="p-2 text-right text-slate-600">${formatRp(item.biayaInput)}</td>
                         <td class="p-2 text-right text-slate-600">${formatRp(item.adm)}</td>
@@ -687,6 +856,7 @@
             document.getElementById('statTotalSSP').innerText = formatRp(sumSSP);
             document.getElementById('statTotalOperasional').innerText = formatRp(sumOp);
             document.getElementById('statGrandTotal').innerText = formatRp(sumBPHTB + sumSSP + sumOp);
+            updatePrintButtonLabel();
         }
 
         function openDataModal(index = -1) {
@@ -708,15 +878,28 @@
                 document.getElementById('inputHargaM2').value = item.hargaM2;
                 document.getElementById('inputHargaJual').value = item.hargaJual;
                 document.getElementById('inputKet').value = item.ket;
+                document.getElementById('inputNOPTKP').value = item.noptkp !== undefined ? item.noptkp : 80000000;
+                document.getElementById('rateBPHTB').value = item.rateBPHTB !== undefined ? item.rateBPHTB : 5;
+                document.getElementById('rateSSP').value = item.rateSSP !== undefined ? item.rateSSP : 2.5;
                 document.getElementById('inputNotaris').value = item.notaris;
                 document.getElementById('inputKeterangan').value = item.keterangan || "";
                 document.getElementById('customBPHTB').value = item.bphtb;
                 document.getElementById('customSSP').value = item.ssp;
+                document.getElementById('inputValidasi').value = item.validasi !== undefined ? item.validasi : 48750;
+                document.getElementById('inputBiayaInput').value = item.biayaInput !== undefined ? item.biayaInput : 48750;
+                document.getElementById('inputADM').value = item.adm !== undefined ? item.adm : 2500;
+                document.getElementById('chkPotongBunga').checked = item.potongBunga || false;
                 calculatePajak();
             } else {
                 document.getElementById('modalTitle').innerText = "Tambah Data Konsumen";
                 document.getElementById('inputJenisPengajuan').value = "LENGKAP";
-                document.getElementById('calcADM').innerText = "Rp 2.500";
+                document.getElementById('inputNOPTKP').value = 80000000;
+                document.getElementById('rateBPHTB').value = 5;
+                document.getElementById('rateSSP').value = 2.5;
+                document.getElementById('inputValidasi').value = 48750;
+                document.getElementById('inputBiayaInput').value = 48750;
+                document.getElementById('inputADM').value = 2500;
+                document.getElementById('chkPotongBunga').checked = false;
             }
 
             document.getElementById('dataModal').classList.remove('hidden');
@@ -733,12 +916,78 @@
         function deleteData(index) {
             if (confirm(`Apakah Anda yakin ingin menghapus data konsumen ${consumers[index].nama}?`)) {
                 consumers.splice(index, 1);
+                selectedIndices.delete(index);
                 saveToLocalStorage();
                 populateFilterOptions();
                 renderTable();
             }
         }
 
+        /* REVISI 5: CONFIG MODAL GITHUB & FIREBASE */
+        function openConfigModal() {
+            document.getElementById('dbConfigJson').value = localStorage.getItem('db_config_json') || '';
+            document.getElementById('ghToken').value = localStorage.getItem('gh_token') || '';
+            document.getElementById('ghOwner').value = localStorage.getItem('gh_owner') || '';
+            document.getElementById('ghRepo').value = localStorage.getItem('gh_repo') || '';
+            document.getElementById('ghPath').value = localStorage.getItem('gh_path') || 'data/pajak.json';
+            document.getElementById('configModal').classList.remove('hidden');
+        }
+
+        function closeConfigModal() {
+            document.getElementById('configModal').classList.add('hidden');
+        }
+
+        function saveConfig() {
+            const json = document.getElementById('dbConfigJson').value.trim();
+            const ghToken = document.getElementById('ghToken').value.trim();
+            const ghOwner = document.getElementById('ghOwner').value.trim();
+            const ghRepo = document.getElementById('ghRepo').value.trim();
+            const ghPath = document.getElementById('ghPath').value.trim();
+
+            localStorage.setItem('db_config_json', json);
+            localStorage.setItem('gh_token', ghToken);
+            localStorage.setItem('gh_owner', ghOwner);
+            localStorage.setItem('gh_repo', ghRepo);
+            localStorage.setItem('gh_path', ghPath);
+
+            alert('Pengaturan Koneksi Berhasil Disimpan!');
+            closeConfigModal();
+            checkConfigStatus();
+        }
+
+        function useDefaultConfig() {
+            localStorage.removeItem('db_config_json');
+            localStorage.removeItem('gh_token');
+            localStorage.removeItem('gh_owner');
+            localStorage.removeItem('gh_repo');
+            localStorage.removeItem('gh_path');
+
+            document.getElementById('dbConfigJson').value = '';
+            document.getElementById('ghToken').value = '';
+            document.getElementById('ghOwner').value = '';
+            document.getElementById('ghRepo').value = '';
+            document.getElementById('ghPath').value = '';
+
+            alert('Config di-reset ke Mode Default (Local).');
+            closeConfigModal();
+            checkConfigStatus();
+        }
+
+        function checkConfigStatus() {
+            const badge = document.getElementById('syncBadge');
+            const ghToken = localStorage.getItem('gh_token');
+            const dbJson = localStorage.getItem('db_config_json');
+
+            if (ghToken || dbJson) {
+                badge.className = "px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-900/60 text-emerald-300 border border-emerald-700/50 flex items-center gap-1";
+                badge.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Connected`;
+            } else {
+                badge.className = "px-2 py-0.5 text-[10px] font-bold rounded-full bg-red-900/60 text-red-300 border border-red-700/50 flex items-center gap-1";
+                badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Offline`;
+            }
+        }
+
+        /* BERKAS & PREVIEW FUNCTIONS */
         function openFileModal(index) {
             activeConsumerIndex = index;
             const item = consumers[index];
@@ -840,9 +1089,12 @@
             document.getElementById('searchInput').value = '';
             document.getElementById('filterPerum').value = '';
             document.getElementById('filterNotaris').value = '';
+            selectedIndices.clear();
+            document.getElementById('selectAllCheckbox').checked = false;
             renderTable();
         }
 
+        /* CETAK REPORT ADAPTIF (SEMUA/CEKLIS) */
         function printReport() {
             const printTableBody = document.getElementById('printTableBody');
             printTableBody.innerHTML = '';
@@ -851,6 +1103,11 @@
             document.getElementById('printSub').innerText = currentSubtitle;
             document.getElementById('printDate').innerText = `Tanggal Cetak: ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}`;
 
+            // Filter data yang akan dicetak berdasarkan pilihan checkbox
+            const listToPrint = selectedIndices.size > 0 
+                ? consumers.filter((_, idx) => selectedIndices.has(idx))
+                : consumers;
+
             let sumBPHTB = 0;
             let sumSSP = 0;
             let sumValidasi = 0;
@@ -858,15 +1115,16 @@
             let sumADM = 0;
             let sumJual = 0;
 
-            consumers.forEach((item, idx) => {
+            listToPrint.forEach((item, idx) => {
                 sumJual += item.hargaJual;
                 sumBPHTB += item.bphtb;
                 sumSSP += item.ssp;
-                sumValidasi += item.validasi;
-                sumInput += item.biayaInput;
-                sumADM += item.adm;
+                sumValidasi += (item.validasi || 0);
+                sumInput += (item.biayaInput || 0);
+                sumADM += (item.adm || 0);
 
                 const tr = document.createElement('tr');
+                /* REVISI 2 & 3 DI CETAKAN: HRG/M2 -> HARGA JUAL -> XBPHTB -> XSSP -> VALIDASI BPHTB */
                 tr.innerHTML = `
                     <td>${idx + 1}</td>
                     <td style="text-align:left; font-weight:bold;">${item.nama}</td>
@@ -877,9 +1135,9 @@
                     <td>${item.ket}</td>
                     <td>${item.perum}</td>
                     <td style="text-align:right;">${formatRp(item.hargaM2)}</td>
-                    <td style="text-align:right;">${formatRp(item.ssp)}</td>
+                    <td style="text-align:right; font-weight:bold;">${formatRp(item.hargaJual)}</td>
                     <td style="text-align:right;">${formatRp(item.bphtb)}</td>
-                    <td style="text-align:right;">${formatRp(item.hargaJual)}</td>
+                    <td style="text-align:right;">${formatRp(item.ssp)}</td>
                     <td style="text-align:right;">${formatRp(item.validasi)}</td>
                     <td style="text-align:right;">${formatRp(item.biayaInput)}</td>
                     <td style="text-align:right;">${formatRp(item.adm)}</td>
@@ -894,9 +1152,9 @@
             totalRow.style.backgroundColor = '#f9f9f9';
             totalRow.innerHTML = `
                 <td colspan="9" style="text-align:right;">GRAND TOTAL:</td>
-                <td style="text-align:right;">${formatRp(sumSSP)}</td>
-                <td style="text-align:right;">${formatRp(sumBPHTB)}</td>
                 <td style="text-align:right;">${formatRp(sumJual)}</td>
+                <td style="text-align:right;">${formatRp(sumBPHTB)}</td>
+                <td style="text-align:right;">${formatRp(sumSSP)}</td>
                 <td style="text-align:right;">${formatRp(sumValidasi)}</td>
                 <td style="text-align:right;">${formatRp(sumInput)}</td>
                 <td style="text-align:right;">${formatRp(sumADM)}</td>
@@ -908,10 +1166,14 @@
         }
 
         function exportCSV() {
-            let csv = "NO,NAMA KONSUMEN,NOP,BLOK,KAV,LUAS,KET,PERUM,HRG/M2,XSSP,XBPHTB,HARGA JUAL,VALIDASI BIAYA INPUT,BIAYA INPUT,BIAYA ADM,NOTARIS,KETERANGAN\n";
+            let csv = "NO,NAMA KONSUMEN,NOP,BLOK,KAV,LUAS,KET,PERUM,HRG/M2,HARGA JUAL,XBPHTB,XSSP,VALIDASI BPHTB,BIAYA INPUT,BIAYA ADM,NOTARIS,KETERANGAN\n";
 
-            consumers.forEach((c, idx) => {
-                csv += `"${idx+1}","${c.nama}","${c.nop}","${c.blok}","${c.kav}","${c.luas}","${c.ket}","${c.perum}","${c.hargaM2}","${c.ssp}","${c.bphtb}","${c.hargaJual}","${c.validasi}","${c.biayaInput}","${c.adm}","${c.notaris}","${c.keterangan || '-'}"\n`;
+            const listToExport = selectedIndices.size > 0 
+                ? consumers.filter((_, idx) => selectedIndices.has(idx))
+                : consumers;
+
+            listToExport.forEach((c, idx) => {
+                csv += `"${idx+1}","${c.nama}","${c.nop}","${c.blok}","${c.kav}","${c.luas}","${c.ket}","${c.perum}","${c.hargaM2}","${c.hargaJual}","${c.bphtb}","${c.ssp}","${c.validasi}","${c.biayaInput}","${c.adm}","${c.notaris}","${c.keterangan || '-'}"\n`;
             });
 
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
