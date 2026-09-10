@@ -1,1300 +1,684 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Pengelolaan BPHTB & SSP Realtime</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: {
-                            50: '#f0f7ff',
-                            100: '#e0effe',
-                            500: '#0284c7',
-                            600: '#0369a1',
-                            700: '#075985',
-                            800: '#0c4a6e',
-                            900: '#0f172a',
-                        }
-                    }
-                }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pengajuan Pajak BPHTB & SSP</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f0f7ff',
+              100: '#e0effe',
+              500: '#0284c7',
+              600: '#0369a1',
+              700: '#075985',
+              800: '#0c4a6e',
+              900: '#0f172a',
             }
+          }
         }
-    </script>
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        
-        .table-container::-webkit-scrollbar {
-            height: 8px;
-            width: 8px;
-        }
-        .table-container::-webkit-scrollbar-track {
-            background: #f1f5f9;
-        }
-        .table-container::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 4px;
-        }
-        .table-container::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
-
-        /* PRINT STYLES - PERFECT LANDSCAPE FIT */
-        @page {
-            size: A4 landscape;
-            margin: 6mm 6mm 6mm 6mm;
-        }
-
-        @media print {
-            .no-print { display: none !important; }
-            .print-only { display: block !important; }
-            
-            tr.print-exclude {
-                display: none !important;
-            }
-
-            .col-keterangan, 
-            .col-aksi,
-            .col-select,
-            .col-docs { 
-                display: none !important; 
-            }
-
-            html, body { 
-                background: white !important; 
-                font-size: 7.5pt !important; 
-                color: black !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                width: 100% !important;
-            }
-            main {
-                max-width: 100% !important;
-                padding: 0 !important;
-                margin: 0 !important;
-                width: 100% !important;
-            }
-            .shadow-sm, .shadow-md, .shadow-lg, .shadow-xl { 
-                box-shadow: none !important; 
-            }
-            .border-slate-200, .border-slate-100 {
-                border-color: #94a3b8 !important;
-            }
-
-            .table-container {
-                overflow: visible !important;
-            }
-
-            table {
-                width: 100% !important;
-                font-size: 7.5pt !important;
-                border-collapse: collapse !important;
-                table-layout: auto !important;
-            }
-            tr {
-                page-break-inside: avoid;
-            }
-            thead {
-                display: table-header-group;
-            }
-            tfoot {
-                display: table-footer-group;
-            }
-            th, td {
-                padding: 3px 4px !important;
-                border: 1px solid #475569 !important;
-                white-space: nowrap !important;
-            }
-
-            thead th {
-                background-color: #f1f5f9 !important;
-                color: #0f172a !important;
-                font-weight: bold !important;
-            }
-
-            .col-nama {
-                white-space: normal !important;
-                max-width: 140px !important;
-                word-break: break-word;
-            }
-        }
-    </style>
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .table-container::-webkit-scrollbar { height: 8px; width: 8px; }
+    .table-container::-webkit-scrollbar-track { background: #f1f5f9; }
+    .table-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    .table-container::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    @media print {
+      .no-print { display: none !important; }
+      .print-only { display: block !important; }
+      body { background: white !important; color: black !important; padding: 0 !important; margin: 0 !important; }
+      .shadow-md, .shadow-sm, .shadow-lg { box-shadow: none !important; }
+      .border { border-color: #cbd5e1 !important; }
+    }
+  </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
 
-    <!-- Top Navigation Bar -->
-    <header class="bg-brand-900 text-white sticky top-0 z-30 shadow-md no-print">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="bg-brand-500 p-2 rounded-lg text-white font-bold">
-                    <i class="fa-solid fa-file-invoice-dollar text-xl"></i>
-                </div>
-                <div>
-                    <div class="flex items-center gap-2">
-                        <h1 id="appTitleText" class="text-lg sm:text-xl font-bold tracking-tight">PENGAJUAN PAJAK BPHTB & SSP</h1>
-                        <button onclick="editAppTitle()" class="text-slate-300 hover:text-white text-xs p-1" title="Edit Judul">
-                            <i class="fa-solid fa-pen"></i>
-                        </button>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <p id="appSubtitleText" class="text-xs text-slate-300 font-medium">Sistem Pengelolaan Multiuser Realtime</p>
-                        <!-- Sync Status Badge -->
-                        <span id="syncStatus" class="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">
-                            <i class="fa-solid fa-arrows-rotate animate-spin text-[9px]"></i> Connecting...
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <div class="flex items-center space-x-2 no-print">
-                <button onclick="openConfigModal()" class="bg-slate-800 hover:bg-slate-700 text-amber-300 px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition border border-slate-700" title="Konfigurasi Firebase Proyek Pribadi">
-                    <i class="fa-solid fa-gear"></i>
-                    <span class="hidden md:inline">Koneksi Database</span>
-                </button>
-                <button onclick="exportToCSV()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition border border-slate-700">
-                    <i class="fa-solid fa-file-csv text-emerald-400"></i>
-                    <span class="hidden sm:inline">Export CSV</span>
-                </button>
-                <button onclick="printSelectedOrAll()" class="bg-brand-600 hover:bg-brand-700 text-white px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition shadow-sm border border-brand-500">
-                    <i class="fa-solid fa-print text-amber-300"></i>
-                    <span id="printBtnLabel">Cetak Semua</span>
-                </button>
-                <button onclick="openModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition shadow-sm">
-                    <i class="fa-solid fa-plus"></i>
-                    <span>Tambah Data</span>
-                </button>
-            </div>
+  <!-- Top Navigation Bar -->
+  <header class="bg-brand-900 text-white sticky top-0 z-30 shadow-md no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap justify-between items-center gap-4">
+      <div class="flex items-center space-x-3">
+        <div class="p-2 bg-brand-600 rounded-lg shadow-sm">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
         </div>
-    </header>
+        <div>
+          <h1 class="text-lg font-bold tracking-tight leading-none flex items-center gap-2">
+            PENGAJUAN PAJAK BPHTB & SSP
+          </h1>
+          <div class="flex items-center gap-2 mt-1">
+            <span class="text-xs text-slate-300 font-medium">Sistem Pengelolaan Multiuser Realtime</span>
+            <span id="syncStatus" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+              🟢 Firebase Online (Live Sync)
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="openConfigModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-300 rounded-lg text-xs font-semibold transition border border-amber-500/30 flex items-center gap-1.5 shadow-sm">
+          ⚙️ Koneksi Database
+        </button>
+        <button onclick="exportToCSV()" class="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg text-xs font-semibold transition border border-emerald-500/30 flex items-center gap-1.5 shadow-sm">
+          📊 Export CSV
+        </button>
+        <button onclick="window.print()" class="px-3 py-1.5 bg-brand-600 hover:bg-brand-500 text-white rounded-lg text-xs font-semibold transition flex items-center gap-1.5 shadow-sm">
+          🖨️ Cetak Semua
+        </button>
+        <button onclick="openModal()" class="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold rounded-lg text-xs transition shadow-sm flex items-center gap-1">
+          + Tambah Data
+        </button>
+      </div>
+    </div>
+  </header>
 
-    <!-- Printable Official Document Header -->
-    <div class="hidden print-only text-center my-2 space-y-1">
-        <h2 id="printTitleText" class="text-lg font-bold uppercase tracking-wider text-black">LAPORAN PENGAJUAN PAJAK BPHTB & SSP</h2>
-        <p class="text-[10pt] text-gray-500">Tanggal Cetak: <span id="printDate"></span></p>
+  <!-- Main Content -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 no-print">
+      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between">
+        <div>
+          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Transaksi</span>
+          <div id="statTotalCount" class="text-2xl font-black text-slate-800 mt-1">0</div>
+        </div>
+        <p class="text-[11px] text-slate-500 mt-2"><span id="statSelectedCount">0</span> dipilih untuk cetak</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between">
+        <div>
+          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total BPHTB (5%)</span>
+          <div id="statTotalBPHTB" class="text-2xl font-black text-slate-800 mt-1">Rp 0</div>
+        </div>
+        <p class="text-[11px] text-slate-500 mt-2">Bea Perolehan Hak Tanah & Bangunan</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between">
+        <div>
+          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total SSP (PPh)</span>
+          <div id="statTotalSSP" class="text-2xl font-black text-slate-800 mt-1">Rp 0</div>
+        </div>
+        <p class="text-[11px] text-slate-500 mt-2">Surat Setoran Pajak</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between">
+        <div>
+          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Biaya Operasional</span>
+          <div id="statTotalOps" class="text-2xl font-black text-slate-800 mt-1">Rp 0</div>
+        </div>
+        <p class="text-[11px] text-slate-500 mt-2">Validasi + Input + Adm</p>
+      </div>
+      <div class="bg-brand-900 text-white p-4 rounded-xl shadow-sm border border-brand-800 flex flex-col justify-between">
+        <div>
+          <span class="text-xs font-bold text-amber-400 uppercase tracking-wider">Grand Total Pajak</span>
+          <div id="statGrandTotal" class="text-2xl font-black text-amber-300 mt-1">Rp 0</div>
+        </div>
+        <p class="text-[11px] text-slate-300 mt-2">Total BPHTB + SSP + Operasional</p>
+      </div>
+    </div>
+
+    <!-- Filter & Search Controls -->
+    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3 no-print">
+      <div class="flex flex-wrap gap-3 items-center justify-between">
+        <div class="flex-1 min-w-[240px]">
+          <input type="text" id="searchInput" onkeyup="applyFilters()" placeholder="Cari nama, NOP, blok, keterangan..." class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500">
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <select id="filterType" onchange="applyFilters()" class="px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500">
+            <option value="">Semua Jenis Pengajuan</option>
+            <option value="1">1. Pengajuan Baru (SSP & BPHTB)</option>
+            <option value="2">2. Validasi Sahaja (BPHTB Sudah Bayar)</option>
+            <option value="3">3. SSP Saja</option>
+          </select>
+          <select id="filterPerum" onchange="applyFilters()" class="px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500">
+            <option value="">Semua Perumahan</option>
+          </select>
+          <select id="filterNotaris" onchange="applyFilters()" class="px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500">
+            <option value="">Semua Notaris</option>
+          </select>
+          <button onclick="selectAllRows(true)" class="px-3 py-2 text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition font-medium">Pilih Semua</button>
+          <button onclick="selectAllRows(false)" class="px-3 py-2 text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition font-medium">Clear Pilihan</button>
+          <button onclick="resetFilters()" class="px-3 py-2 text-xs bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg transition font-medium">🔄 Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Table Container -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div class="table-container overflow-x-auto">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr class="bg-slate-100 text-slate-700 font-bold uppercase tracking-wider border-b border-slate-200 text-[11px]">
+              <th class="p-3 text-center no-print w-10"><input type="checkbox" id="checkAll" onclick="toggleCheckAll(this)"></th>
+              <th class="p-3 text-center w-12">No</th>
+              <th class="p-3 min-w-[150px]">Nama Konsumen</th>
+              <th class="p-3">NOP</th>
+              <th class="p-3">Blok</th>
+              <th class="p-3">Kav</th>
+              <th class="p-3 text-right">Luas</th>
+              <th class="p-3 text-center">Ket</th>
+              <th class="p-3">Perum</th>
+              <th class="p-3 text-right">Hrg/m2</th>
+              <th class="p-3 text-right">XSSP</th>
+              <th class="p-3 text-right">XBPHTB</th>
+              <th class="p-3 text-right">Harga Jual</th>
+              <th class="p-3 text-right text-brand-600">SSP</th>
+              <th class="p-3 text-right text-amber-600">BPHTB</th>
+              <th class="p-3 text-right">Val. Input</th>
+              <th class="p-3 text-right">Biaya Input</th>
+              <th class="p-3 text-right">Biaya Adm</th>
+              <th class="p-3 text-right font-black">Total Ops</th>
+              <th class="p-3 min-w-[120px]">Notaris</th>
+              <th class="p-3 min-w-[150px]">Keterangan</th>
+              <th class="p-3 text-center no-print w-20">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody" class="divide-y divide-slate-200 text-slate-700">
+            <!-- Dynamic rows will be inserted here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Modal Add/Edit Data -->
+  <div id="dataModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 overflow-y-auto no-print">
+    <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b pb-3">
+        <h3 id="modalTitle" class="text-base font-bold text-slate-900">Tambah Data Pengajuan Pajak</h3>
+        <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 font-bold text-xl">&times;</button>
+      </div>
+      <form id="taxForm" onsubmit="saveData(event)" class="space-y-4">
+        <input type="hidden" id="editIndex">
         
-        <div class="my-2 p-1.5 border border-amber-500 bg-amber-50/50 rounded text-left text-[8pt] text-slate-800">
-            <strong>* Catatan Keuangan:</strong> Nilai Validasi Pajak dan Biaya Input BPHTB merupakan nilai bersih <u>setelah dipotong PPh/Pajak 2,5%</u>.
+        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Jenis Pengajuan Pajak</label>
+          <select id="jenisPengajuan" class="w-full p-2 border rounded-md text-xs font-semibold focus:ring-2 focus:ring-brand-500" onchange="calculateFormValues()">
+            <option value="1">1. Pengajuan Baru (SSP & BPHTB)</option>
+            <option value="2">2. Validasi Sahaja (BPHTB Sudah Bayar)</option>
+            <option value="3">3. SSP Saja (Pengajuan Baru / Hanya SSP)</option>
+          </select>
         </div>
-        <hr class="border-black border-t-2 mt-1 mb-2">
-    </div>
 
-    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          <div>
+            <label class="block font-medium mb-1">Nama Konsumen *</label>
+            <input type="text" id="namaKonsumen" required class="w-full p-2 border rounded focus:ring-2 focus:ring-brand-500 uppercase">
+          </div>
+          <div>
+            <label class="block font-medium mb-1">NOP</label>
+            <input type="text" id="nop" class="w-full p-2 border rounded focus:ring-2 focus:ring-brand-500">
+          </div>
+          <div>
+            <label class="block font-medium mb-1">Perumahan * (Ketik/Pilih)</label>
+            <input list="perumList" id="perumahan" required placeholder="CONTOH: GSP, PW, DLL" class="w-full p-2 border rounded focus:ring-2 focus:ring-brand-500 uppercase">
+            <datalist id="perumList">
+              <option value="GSP">
+              <option value="PW">
+            </datalist>
+          </div>
+          <div>
+            <label class="block font-medium mb-1">Blok</label>
+            <input type="text" id="blok" class="w-full p-2 border rounded focus:ring-2 focus:ring-brand-500 uppercase">
+          </div>
+          <div>
+            <label class="block font-medium mb-1">Kavling</label>
+            <input type="text" id="kavling" class="w-full p-2 border rounded focus:ring-2 focus:ring-brand-500">
+          </div>
+          <div>
+            <label class="block font-medium mb-1">Luas (m2)</label>
+            <input type="number" id="luas" oninput="calculateFormValues()" class="w-full p-2 border rounded focus:ring-2 focus:ring-brand-500">
+          </div>
+          <div>
+            <label class="block font-medium mb-1">Ket Type</label>
+            <select id="ketType" class="w-full p-2 border rounded focus:ring-2 focus:ring-brand-500">
+              <option value="SEB">SEB</option>
+              <option value="HOOK">HOOK</option>
+              <option value="RUKO">RUKO</option>
+              <option value="KHUSUS">KHUSUS</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-medium mb-1">Harga / M2 (Rp)</label>
+            <input type="number" id="hargaM2" oninput="calculateFormValues()" class="w-full p-2 border rounded focus:ring-2 focus:ring-brand-500">
+          </div>
+          <div>
+            <label class="block font-medium mb-1">Harga Jual (Rp)</label>
+            <input type="number" id="hargaJual" oninput="calculateFormValues()" class="w-full p-2 border rounded focus:ring-2 focus:ring-brand-500">
+          </div>
+          <div>
+            <label class="block font-medium mb-1">Tarif XSSP (%)</label>
+            <input type="number" step="0.1" id="tarifXSSP" value="2.5" oninput="calculateFormValues()" class="w-full p-2 border rounded focus:ring-2 focus:ring-brand-500">
+          </div>
+          <div>
+            <label class="block font-medium mb-1">Tarif XBPHTB (%)</label>
+            <input type="number" step="0.1" id="tarifXBPHTB" value="5.0" oninput="calculateFormValues()" class="w-full p-2 border rounded focus:ring-2 focus:ring-brand-500">
+          </div>
 
-        <!-- KPI Metrics Grid -->
-        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 no-print">
-            <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 hover:shadow-md transition">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Transaksi</p>
-                        <h3 id="card-total-count" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
-                    </div>
-                    <div class="p-2.5 bg-blue-50 text-blue-600 rounded-lg">
-                        <i class="fa-solid fa-users text-lg"></i>
-                    </div>
-                </div>
-                <p class="text-xs text-slate-500 mt-2"><span id="card-selected-count" class="text-brand-600 font-bold">0</span> dipilih untuk cetak</p>
-            </div>
+          <!-- Datalist Notaris (Bisa diketik bebas untuk Notaris baru!) -->
+          <div>
+            <label class="block font-medium mb-1">Notaris * (Ketik/Pilih)</label>
+            <input list="notarisList" id="notaris" required placeholder="Ketik atau pilih Notaris" class="w-full p-2 border rounded focus:ring-2 focus:ring-brand-500 uppercase">
+            <datalist id="notarisList">
+              <option value="DAHLIA">
+              <option value="ANITA">
+            </datalist>
+          </div>
 
-            <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 hover:shadow-md transition">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total BPHTB (5%)</p>
-                        <h3 id="card-total-bphtb" class="text-lg font-bold text-slate-800 mt-1">Rp 0</h3>
-                    </div>
-                    <div class="p-2.5 bg-amber-50 text-amber-600 rounded-lg">
-                        <i class="fa-solid fa-building-columns text-lg"></i>
-                    </div>
-                </div>
-                <p class="text-xs text-slate-500 mt-2">Bea Perolehan Hak Tanah & Bangunan</p>
-            </div>
-
-            <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 hover:shadow-md transition">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total SSP (PPh)</p>
-                        <h3 id="card-total-ssp" class="text-lg font-bold text-slate-800 mt-1">Rp 0</h3>
-                    </div>
-                    <div class="p-2.5 bg-indigo-50 text-indigo-600 rounded-lg">
-                        <i class="fa-solid fa-receipt text-lg"></i>
-                    </div>
-                </div>
-                <p class="text-xs text-slate-500 mt-2">Surat Setoran Pajak</p>
-            </div>
-
-            <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 hover:shadow-md transition">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Biaya Operasional</p>
-                        <h3 id="card-total-operasional" class="text-lg font-bold text-slate-800 mt-1">Rp 0</h3>
-                    </div>
-                    <div class="p-2.5 bg-purple-50 text-purple-600 rounded-lg">
-                        <i class="fa-solid fa-calculator text-lg"></i>
-                    </div>
-                </div>
-                <p class="text-xs text-slate-500 mt-2">Validasi + Input + Adm</p>
-            </div>
-
-            <div class="bg-gradient-to-br from-brand-700 to-brand-900 rounded-xl p-4 shadow-md text-white sm:col-span-2 lg:col-span-1">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-xs font-medium text-brand-200 uppercase tracking-wider">Grand Total Pajak</p>
-                        <h3 id="card-grand-total" class="text-xl font-extrabold text-white mt-1">Rp 0</h3>
-                    </div>
-                    <div class="p-2.5 bg-white/10 rounded-lg text-amber-300">
-                        <i class="fa-solid fa-wallet text-lg"></i>
-                    </div>
-                </div>
-                <p class="text-xs text-brand-200 mt-2">Total BPHTB + SSP + Operasional</p>
-            </div>
-        </section>
-
-        <!-- Search & Filter Toolbar -->
-        <section class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 no-print space-y-3">
-            <div class="flex flex-col md:flex-row gap-3 justify-between items-center">
-                <!-- Search Input -->
-                <div class="relative w-full md:w-80">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                    <input type="text" id="searchInput" oninput="applyFilters()" placeholder="Cari nama, NOP, blok, keterangan..." 
-                           class="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent">
-                </div>
-
-                <!-- Filters & Options -->
-                <div class="flex flex-wrap items-center gap-2 w-full md:w-auto justify-end">
-                    <!-- Filter Jenis Pengajuan -->
-                    <select id="filterJenis" onchange="applyFilters()" class="px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500">
-                        <option value="">Semua Jenis Pengajuan</option>
-                        <option value="FULL">BPHTB + SSP</option>
-                        <option value="BPHTB_ONLY">BPHTB Saja</option>
-                        <option value="SSP_ONLY">SSP Saja</option>
-                        <option value="KB_BPHTB">Kurang Bayar BPHTB</option>
-                        <option value="KB_SSP">Kurang Bayar SSP</option>
-                    </select>
-
-                    <!-- Filter Perumahan Dynamic -->
-                    <select id="filterPerum" onchange="applyFilters()" class="px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500">
-                        <option value="">Semua Perumahan</option>
-                    </select>
-
-                    <!-- Filter Notaris -->
-                   <select id="filterNotaris" onchange="applyFilters()" class="px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500">
-    <option value="">Semua Notaris</option>
-    <option value="DAHLIA">Notaris DAHLIA</option>
-    <option value="ANITA">Notaris ANITA</option>
-    <option value="inda">Notaris NAMA_NOTARIS_BARU</option>
-</select>
-
-                    <!-- Selection Buttons -->
-                    <button onclick="selectAllRows(true)" class="px-3 py-2 text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition font-medium">
-                        Pilih Semua
-                    </button>
-                    <button onclick="selectAllRows(false)" class="px-3 py-2 text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition font-medium">
-                        Clear Pilihan
-                    </button>
-
-                    <button onclick="resetFilters()" class="px-3 py-2 text-sm text-slate-600 hover:text-slate-900 border border-slate-200 rounded-lg hover:bg-slate-50 transition">
-                        <i class="fa-solid fa-rotate-right mr-1"></i> Reset
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <section class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-            <div class="table-container overflow-x-auto">
-                <table class="w-full text-left text-xs text-slate-600 border-collapse">
-                    <thead class="bg-slate-100 text-slate-700 uppercase font-bold text-[11px] tracking-wider border-b border-slate-200 sticky top-0">
-                        <tr>
-                            <th class="p-3 text-center w-8 border-r border-slate-200 no-print col-select">
-                                <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)" class="rounded text-brand-600 focus:ring-brand-500 cursor-pointer">
-                            </th>
-                            <th class="p-3 text-center w-8 border-r border-slate-200">NO</th>
-                            <th class="p-3 min-w-[140px] border-r border-slate-200 col-nama">NAMA KONSUMEN</th>
-                            <th class="p-3 border-r border-slate-200 text-center">NOP</th>
-                            <th class="p-3 border-r border-slate-200 text-center">BLOK</th>
-                            <th class="p-3 border-r border-slate-200 text-center">KAV</th>
-                            <th class="p-3 border-r border-slate-200 text-center">LUAS</th>
-                            <th class="p-3 border-r border-slate-200 text-center">KET</th>
-                            <th class="p-3 border-r border-slate-200 text-center">PERUM</th>
-                            <th class="p-3 border-r border-slate-200 text-right">HRG/M2</th>
-                            <th class="p-3 border-r border-slate-200 text-center">XSSP</th>
-                            <th class="p-3 border-r border-slate-200 text-center">XBPHTB</th>
-                            <th class="p-3 border-r border-slate-200 text-right bg-slate-50">HARGA JUAL</th>
-                            <th class="p-3 border-r border-slate-200 text-right bg-indigo-50/50">SSP</th>
-                            <th class="p-3 border-r border-slate-200 text-right bg-amber-50/50">BPHTB</th>
-                            <th class="p-3 border-r border-slate-200 text-right">VALIDASI BIAYA INPUT</th>
-                            <th class="p-3 border-r border-slate-200 text-right">BIAYA INPUT</th>
-                            <th class="p-3 border-r border-slate-200 text-right">BIAYA ADM</th>
-                            <th class="p-3 border-r border-slate-200 text-center">NOTARIS</th>
-                            <th class="p-3 min-w-[150px] border-r border-slate-200 col-keterangan">KETERANGAN</th>
-                            <th class="p-3 text-center border-r border-slate-200 no-print col-docs">BUKTI & VALIDASI</th>
-                            <th class="p-3 text-center no-print col-aksi">AKSI</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody" class="divide-y divide-slate-200 bg-white font-medium">
-                        <!-- Table rows populated via JavaScript -->
-                    </tbody>
-                    <tfoot class="bg-slate-800 text-white font-bold border-t-2 border-slate-900">
-                        <tr>
-                            <td class="no-print col-select"></td>
-                            <td colspan="12" class="p-2.5 text-right uppercase tracking-wider text-xs">TOTAL (TERLIHAT):</td>
-                            <td id="foot-ssp" class="p-2.5 text-right text-indigo-300">Rp 0</td>
-                            <td id="foot-bphtb" class="p-2.5 text-right text-amber-300">Rp 0</td>
-                            <td id="foot-validasi" class="p-2.5 text-right text-slate-300">Rp 0</td>
-                            <td id="foot-input" class="p-2.5 text-right text-slate-300">Rp 0</td>
-                            <td id="foot-adm" class="p-2.5 text-right text-slate-300">Rp 0</td>
-                            <td class="col-notaris"></td>
-                            <td class="col-keterangan"></td>
-                            <td class="no-print col-docs"></td>
-                            <td class="no-print col-aksi"></td>
-                        </tr>
-                        <tr class="bg-slate-900 text-amber-400 font-extrabold text-xs sm:text-sm border-t border-slate-700">
-                            <td class="no-print col-select"></td>
-                            <td colspan="12" class="p-2.5 text-right uppercase tracking-wider">GRAND TOTAL PAJAK + OPERASIONAL:</td>
-                            <td colspan="5" id="foot-grand-total" class="p-2.5 text-center text-emerald-400 text-sm sm:text-base">Rp 0</td>
-                            <td class="col-keterangan"></td>
-                            <td class="no-print col-docs"></td>
-                            <td class="no-print col-aksi"></td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-        </section>
-    </main>
-
-    <!-- Modal Add/Edit Data Pajak -->
-    <div id="dataModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 overflow-y-auto no-print">
-        <div class="bg-white rounded-xl shadow-2xl max-w-3xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center border-b border-slate-200 pb-3">
-                <h3 class="text-base font-bold text-slate-800" id="modalTitle">Tambah Data Pengajuan Pajak</h3>
-                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-2xl font-bold">&times;</button>
-            </div>
-            <form id="taxForm" onsubmit="saveData(event)" class="space-y-4">
-                <input type="hidden" id="editDocId" value="">
-                
-                <!-- Jenis Pengajuan Selector -->
-                <div class="bg-brand-50 p-3 rounded-lg border border-brand-200 space-y-2">
-                    <label class="block text-xs font-bold text-brand-900 uppercase">Jenis Pengajuan Pajak</label>
-                    <select id="inputJenisPengajuan" onchange="handleJenisPengajuanChange()" class="w-full px-3 py-2 text-xs bg-white border border-brand-300 rounded-lg focus:ring-2 focus:ring-brand-500 font-semibold">
-                        <option value="FULL">1. BPHTB + SSP (Lengkap / Normal)</option>
-                        <option value="BPHTB_ONLY">2. BPHTB Saja (Pengajuan Baru / Hanya BPHTB)</option>
-                        <option value="SSP_ONLY">3. SSP Saja (Pengajuan Baru / Hanya SSP)</option>
-                        <option value="KB_BPHTB">4. Kurang Bayar BPHTB (Kekurangan BPHTB Saja)</option>
-                        <option value="KB_SSP">5. Kurang Bayar SSP (Kekurangan SSP Saja)</option>
-                    </select>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Konsumen *</label>
-                        <input type="text" id="inputNama" required class="w-full px-3 py-1.5 text-xs border rounded-lg focus:ring-2 focus:ring-brand-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">NOP</label>
-                        <input type="text" id="inputNop" class="w-full px-3 py-1.5 text-xs border rounded-lg focus:ring-2 focus:ring-brand-500 font-mono">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Perumahan * (Ketik/Pilih)</label>
-                        <input type="text" id="inputPerum" list="perumahanOptions" required placeholder="Contoh: GSP, PW, dll" class="w-full px-3 py-1.5 text-xs border rounded-lg focus:ring-2 focus:ring-brand-500 font-bold uppercase">
-                        <datalist id="perumahanOptions">
-                            <option value="GSP">
-                            <option value="PW">
-                        </datalist>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Blok</label>
-                        <input type="text" id="inputBlok" class="w-full px-3 py-1.5 text-xs border rounded-lg focus:ring-2 focus:ring-brand-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Kavling</label>
-                        <input type="number" id="inputKav" class="w-full px-3 py-1.5 text-xs border rounded-lg focus:ring-2 focus:ring-brand-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Luas (m2)</label>
-                        <input type="number" step="0.01" id="inputLuas" oninput="autoCalculateTaxes()" class="w-full px-3 py-1.5 text-xs border rounded-lg focus:ring-2 focus:ring-brand-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Ket Type</label>
-                        <select id="inputKetType" class="w-full px-3 py-1.5 text-xs border rounded-lg focus:ring-2 focus:ring-brand-500">
-                            <option value="SEB">SEB</option>
-                            <option value="HOOK">HOOK</option>
-                            <option value="STD">STD</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Harga / M2 (Rp)</label>
-                        <input type="number" id="inputHrgM2" oninput="autoCalculateTaxes()" class="w-full px-3 py-1.5 text-xs border rounded-lg focus:ring-2 focus:ring-brand-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Harga Jual (Rp)</label>
-                        <input type="number" id="inputHargaJual" oninput="autoCalculateTaxes()" class="w-full px-3 py-1.5 text-xs border rounded-lg focus:ring-2 focus:ring-brand-500 font-bold">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Tarif XSSP (%)</label>
-                        <input type="number" step="0.1" id="inputXssp" value="2.5" oninput="autoCalculateTaxes()" class="w-full px-3 py-1.5 text-xs border rounded-lg focus:ring-2 focus:ring-brand-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Tarif XBPHTB (%)</label>
-                        <input type="number" step="0.1" id="inputXbphtb" value="5.0" oninput="autoCalculateTaxes()" class="w-full px-3 py-1.5 text-xs border rounded-lg focus:ring-2 focus:ring-brand-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Notaris *</label>
-                        <select id="inputNotaris" required class="w-full px-3 py-1.5 text-xs border rounded-lg focus:ring-2 focus:ring-brand-500">
-                            <option value="DAHLIA">DAHLIA</option>
-                            <option value="ANITA">ANITA</option>
-                        </select>
-                    </div>
-                    
-                    <div id="boxInputSsp" class="p-2 bg-indigo-50/70 rounded-lg border border-indigo-200">
-                        <label class="block text-xs font-bold text-indigo-900 mb-1">Nilai Pengajuan SSP (Rp)</label>
-                        <input type="number" id="inputSsp" class="w-full px-3 py-1.5 text-xs border rounded-lg focus:ring-2 focus:ring-indigo-500 font-bold text-indigo-700">
-                    </div>
-                    <div id="boxInputBphtb" class="p-2 bg-amber-50/70 rounded-lg border border-amber-200">
-                        <label class="block text-xs font-bold text-amber-900 mb-1">Nilai Pengajuan BPHTB (Rp)</label>
-                        <input type="number" id="inputBphtb" class="w-full px-3 py-1.5 text-xs border rounded-lg focus:ring-2 focus:ring-amber-500 font-bold text-amber-700">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Validasi Biaya Input (Rp)</label>
-                        <input type="number" id="inputValidasi" value="50000" class="w-full px-3 py-1.5 text-xs border rounded-lg focus:ring-2 focus:ring-brand-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Biaya Input (Rp)</label>
-                        <input type="number" id="inputBiayaInput" value="50000" class="w-full px-3 py-1.5 text-xs border rounded-lg focus:ring-2 focus:ring-brand-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Biaya Adm (Rp)</label>
-                        <input type="number" id="inputBiayaAdm" value="2500" class="w-full px-3 py-1.5 text-xs border rounded-lg focus:ring-2 focus:ring-brand-500">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Keterangan Catatan</label>
-                    <input type="text" id="inputKet" placeholder="Contoh: Kurang bayar SSP Rp 150.000 / Pajak Baru 2026" class="w-full px-3 py-1.5 text-xs border rounded-lg focus:ring-2 focus:ring-brand-500">
-                </div>
-
-                <div class="flex justify-end gap-2 border-t pt-3">
-                    <button type="button" onclick="closeModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg">Batal</button>
-                    <button type="submit" id="btnSubmitForm" class="px-5 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5">
-                        <i class="fa-solid fa-cloud-arrow-up"></i>
-                        <span>Simpan Data</span>
-                    </button>
-                </div>
-            </form>
+          <div class="bg-blue-50/50 p-2 rounded border border-blue-100">
+            <label class="block font-bold text-blue-800 mb-1">Nilai Pengajuan SSP (Rp)</label>
+            <input type="number" id="ssp" class="w-full p-2 border rounded bg-white font-semibold">
+          </div>
+          <div class="bg-amber-50/50 p-2 rounded border border-amber-100">
+            <label class="block font-bold text-amber-800 mb-1">Nilai Pengajuan BPHTB (Rp)</label>
+            <input type="number" id="bphtb" class="w-full p-2 border rounded bg-white font-semibold">
+          </div>
+          <div>
+            <label class="block font-medium mb-1">Validasi Biaya Input (Rp)</label>
+            <input type="number" id="valInput" value="50000" class="w-full p-2 border rounded">
+          </div>
+          <div>
+            <label class="block font-medium mb-1">Biaya Input (Rp)</label>
+            <input type="number" id="biayaInput" value="50000" class="w-full p-2 border rounded">
+          </div>
+          <div>
+            <label class="block font-medium mb-1">Biaya Adm (Rp)</label>
+            <input type="number" id="biayaAdm" value="2500" class="w-full p-2 border rounded">
+          </div>
         </div>
-    </div>
 
-    <!-- Modal Document Storage & Proof Preview (SSP & BPHTB) -->
-    <div id="docsModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 overflow-y-auto no-print">
-        <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full p-6 space-y-5 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center border-b border-slate-200 pb-3">
-                <div>
-                    <h3 class="text-base font-bold text-slate-800" id="docsModalTitle">Kelola Bukti Bayar & Validasi</h3>
-                    <p class="text-xs text-slate-500" id="docsModalSub">Konsumen: -</p>
-                </div>
-                <button onclick="closeDocsModal()" class="text-slate-400 hover:text-slate-600 text-2xl font-bold">&times;</button>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- SSP DOCUMENTS SECTION -->
-                <div class="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100 space-y-4">
-                    <div class="flex items-center gap-2 text-indigo-900 font-bold text-sm border-b border-indigo-200 pb-2">
-                        <i class="fa-solid fa-receipt text-indigo-600"></i>
-                        <span>DOKUMEN SSP (SURAT SETORAN PAJAK)</span>
-                    </div>
-
-                    <div class="bg-white p-3 rounded-lg border border-slate-200 space-y-2">
-                        <div class="flex justify-between items-center">
-                            <label class="text-xs font-bold text-slate-700">1. Bukti Bayar Bank SSP</label>
-                            <span id="badge-sspBayar" class="text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-500 font-medium">Belum Upload</span>
-                        </div>
-                        <input type="file" id="file-sspBayar" accept="image/*,application/pdf" onchange="uploadFile('sspBayar', this)" class="block w-full text-xs text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer">
-                        <div id="preview-sspBayar" class="hidden flex items-center justify-between bg-slate-50 p-2 rounded text-xs border">
-                            <span class="truncate max-w-[180px] text-slate-700 font-mono text-[11px]" id="name-sspBayar"></span>
-                            <div class="flex gap-1">
-                                <button onclick="viewDoc('sspBayar')" class="px-2 py-1 bg-indigo-600 text-white rounded text-[10px] font-semibold hover:bg-indigo-700"><i class="fa-solid fa-eye"></i> Preview</button>
-                                <button onclick="printDoc('sspBayar')" class="px-2 py-1 bg-slate-700 text-white rounded text-[10px] font-semibold hover:bg-slate-800"><i class="fa-solid fa-print"></i></button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white p-3 rounded-lg border border-slate-200 space-y-2">
-                        <div class="flex justify-between items-center">
-                            <label class="text-xs font-bold text-slate-700">2. Bukti Validasi SSP</label>
-                            <span id="badge-sspValidasi" class="text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-500 font-medium">Belum Upload</span>
-                        </div>
-                        <input type="file" id="file-sspValidasi" accept="image/*,application/pdf" onchange="uploadFile('sspValidasi', this)" class="block w-full text-xs text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer">
-                        <div id="preview-sspValidasi" class="hidden flex items-center justify-between bg-slate-50 p-2 rounded text-xs border">
-                            <span class="truncate max-w-[180px] text-slate-700 font-mono text-[11px]" id="name-sspValidasi"></span>
-                            <div class="flex gap-1">
-                                <button onclick="viewDoc('sspValidasi')" class="px-2 py-1 bg-indigo-600 text-white rounded text-[10px] font-semibold hover:bg-indigo-700"><i class="fa-solid fa-eye"></i> Preview</button>
-                                <button onclick="printDoc('sspValidasi')" class="px-2 py-1 bg-slate-700 text-white rounded text-[10px] font-semibold hover:bg-slate-800"><i class="fa-solid fa-print"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- BPHTB DOCUMENTS SECTION -->
-                <div class="bg-amber-50/50 p-4 rounded-xl border border-amber-100 space-y-4">
-                    <div class="flex items-center gap-2 text-amber-900 font-bold text-sm border-b border-amber-200 pb-2">
-                        <i class="fa-solid fa-building-columns text-amber-600"></i>
-                        <span>DOKUMEN BPHTB</span>
-                    </div>
-
-                    <div class="bg-white p-3 rounded-lg border border-slate-200 space-y-2">
-                        <div class="flex justify-between items-center">
-                            <label class="text-xs font-bold text-slate-700">1. Bukti Bayar Bank BPHTB</label>
-                            <span id="badge-bphtbBayar" class="text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-500 font-medium">Belum Upload</span>
-                        </div>
-                        <input type="file" id="file-bphtbBayar" accept="image/*,application/pdf" onchange="uploadFile('bphtbBayar', this)" class="block w-full text-xs text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 cursor-pointer">
-                        <div id="preview-bphtbBayar" class="hidden flex items-center justify-between bg-slate-50 p-2 rounded text-xs border">
-                            <span class="truncate max-w-[180px] text-slate-700 font-mono text-[11px]" id="name-bphtbBayar"></span>
-                            <div class="flex gap-1">
-                                <button onclick="viewDoc('bphtbBayar')" class="px-2 py-1 bg-amber-600 text-white rounded text-[10px] font-semibold hover:bg-amber-700"><i class="fa-solid fa-eye"></i> Preview</button>
-                                <button onclick="printDoc('bphtbBayar')" class="px-2 py-1 bg-slate-700 text-white rounded text-[10px] font-semibold hover:bg-slate-800"><i class="fa-solid fa-print"></i></button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white p-3 rounded-lg border border-slate-200 space-y-2">
-                        <div class="flex justify-between items-center">
-                            <label class="text-xs font-bold text-slate-700">2. Bukti Validasi BPHTB</label>
-                            <span id="badge-bphtbValidasi" class="text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-500 font-medium">Belum Upload</span>
-                        </div>
-                        <input type="file" id="file-bphtbValidasi" accept="image/*,application/pdf" onchange="uploadFile('bphtbValidasi', this)" class="block w-full text-xs text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 cursor-pointer">
-                        <div id="preview-bphtbValidasi" class="hidden flex items-center justify-between bg-slate-50 p-2 rounded text-xs border">
-                            <span class="truncate max-w-[180px] text-slate-700 font-mono text-[11px]" id="name-bphtbValidasi"></span>
-                            <div class="flex gap-1">
-                                <button onclick="viewDoc('bphtbValidasi')" class="px-2 py-1 bg-amber-600 text-white rounded text-[10px] font-semibold hover:bg-amber-700"><i class="fa-solid fa-eye"></i> Preview</button>
-                                <button onclick="printDoc('bphtbValidasi')" class="px-2 py-1 bg-slate-700 text-white rounded text-[10px] font-semibold hover:bg-slate-800"><i class="fa-solid fa-print"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex justify-between items-center border-t border-slate-200 pt-4">
-                <button onclick="printAllDocsCurrentRow()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-lg flex items-center gap-2">
-                    <i class="fa-solid fa-print text-amber-400"></i> Cetak Semua Dokumen Konsumen Ini
-                </button>
-                <button onclick="closeDocsModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-semibold rounded-lg">Selesai</button>
-            </div>
+        <div>
+          <label class="block text-xs font-medium mb-1">Keterangan Catatan</label>
+          <input type="text" id="keterangan" placeholder="Contoh: Kurang bayar SSP Rp 150.000 / Pajak Baru 2026" class="w-full p-2 border rounded text-xs">
         </div>
-    </div>
 
-    <!-- Document Viewer Modal -->
-    <div id="fileViewerModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex items-center justify-center hidden p-4 no-print">
-        <div class="bg-white rounded-xl shadow-2xl max-w-3xl w-full p-4 space-y-3">
-            <div class="flex justify-between items-center border-b pb-2">
-                <h4 id="fileViewerTitle" class="text-sm font-bold text-slate-800">Preview Dokumen</h4>
-                <div class="flex gap-2">
-                    <button onclick="printCurrentViewerDoc()" class="px-3 py-1 bg-brand-600 text-white text-xs rounded hover:bg-brand-700 font-semibold"><i class="fa-solid fa-print mr-1"></i> Cetak Dokumen</button>
-                    <button onclick="closeViewerModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
-                </div>
-            </div>
-            <div id="fileViewerContent" class="max-h-[70vh] overflow-y-auto flex items-center justify-center bg-slate-100 rounded-lg p-2 min-h-[300px]">
-            </div>
+        <div class="flex justify-end gap-2 pt-2 border-t">
+          <button type="button" onclick="closeModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold">Batal</button>
+          <button type="submit" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-lg text-xs font-bold shadow-sm">☁️ Simpan Data</button>
         </div>
+      </form>
     </div>
+  </div>
 
-    <!-- Firebase Custom Config Modal -->
-    <div id="firebaseConfigModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 no-print">
-        <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full p-6 space-y-4">
-            <div class="flex justify-between items-center border-b border-slate-200 pb-3">
-                <h3 class="text-base font-bold text-slate-800">Koneksi Project Firebase Sendiri</h3>
-                <button onclick="closeConfigModal()" class="text-slate-400 hover:text-slate-600 text-2xl font-bold">&times;</button>
-            </div>
-            <p class="text-xs text-slate-600">Aplikasi ini secara otomatis sudah terhubung ke database online default. Jika Anda ingin menghubungkannya ke **Firebase Project milik sendiri**, tempelkan file konfigurasi JSON Firebase di bawah ini:</p>
-            <textarea id="customFirebaseInput" rows="6" placeholder='{"apiKey": "AIzaSy...", "authDomain": "...firebaseapp.com", "projectId": "..."}' class="w-full text-xs font-mono p-3 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500"></textarea>
-            <div class="flex justify-between items-center border-t pt-3">
-                <button onclick="resetDefaultFirebase()" class="text-xs text-rose-600 font-semibold hover:underline">Gunakan Config Default</button>
-                <div class="flex gap-2">
-                    <button onclick="closeConfigModal()" class="px-3 py-1.5 bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg">Batal</button>
-                    <button onclick="saveCustomFirebaseConfig()" class="px-4 py-1.5 bg-brand-600 text-white text-xs font-semibold rounded-lg shadow-sm">Simpan Config</button>
-                </div>
-            </div>
+  <!-- Modal Config Firebase -->
+  <div id="configModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 no-print">
+    <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6 space-y-4">
+      <div class="flex justify-between items-center border-b pb-3">
+        <h3 class="text-base font-bold text-slate-900">Koneksi Project Firebase Sendiri</h3>
+        <button onclick="closeConfigModal()" class="text-slate-400 hover:text-slate-600 font-bold text-xl">&times;</button>
+      </div>
+      <p class="text-xs text-slate-600">Tempelkan file konfigurasi JSON Firebase di bawah ini untuk menghubungkan aplikasi secara langsung:</p>
+      <textarea id="configJsonInput" rows="6" placeholder='{"apiKey": "AIzaSy...", "authDomain": "...firebaseapp.com", "projectId": "..."}' class="w-full p-3 text-xs font-mono bg-slate-50 border rounded-lg focus:ring-2 focus:ring-brand-500"></textarea>
+      <div class="flex justify-between items-center pt-2">
+        <button onclick="resetConfig()" class="text-xs text-red-600 font-semibold hover:underline">Gunakan Config Default</button>
+        <div class="flex gap-2">
+          <button onclick="closeConfigModal()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-xs font-semibold">Batal</button>
+          <button onclick="saveConfig()" class="px-4 py-2 bg-brand-600 text-white rounded-lg text-xs font-bold">Simpan Config</button>
         </div>
+      </div>
     </div>
+  </div>
 
-    <!-- FIREBASE MODULE INTEGRATION -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, onSnapshot, setDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+  <!-- Firebase Integration Script -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, onSnapshot, addDoc, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        // Environment variables or fallback defaults
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'pajak-bphtb-sspsys';
-        
-        let firebaseConfig = {
-            apiKey: "AIzaSyDemoConfigForBPHTBApp12345678",
-            authDomain: `${appId}.firebaseapp.com`,
-            projectId: appId,
-            storageBucket: `${appId}.appspot.com`,
-            messagingSenderId: "1234567890",
-            appId: "1:1234567890:web:abcdef123456"
-        };
+    const defaultConfig = {
+      apiKey: "AIzaSyArBDk8xVIxxwPeQYRTjV-asiKMA7ijLxk",
+      authDomain: "pengajuan-pajak.firebaseapp.com",
+      projectId: "pengajuan-pajak",
+      storageBucket: "pengajuan-pajak.firebasestorage.app",
+      messagingSenderId: "283774789664",
+      appId: "1:283774789664:web:922ad4ca7fcb52d0caf445"
+    };
 
-        if (typeof __firebase_config !== 'undefined' && __firebase_config) {
-            try {
-                firebaseConfig = JSON.parse(__firebase_config);
-            } catch(e) { console.warn("Using fallback config"); }
-        }
+    let db, taxCol;
+    let rawData = [];
 
-        // Custom config check from localStorage
-        const customCfg = localStorage.getItem('custom_firebase_config');
-        if (customCfg) {
-            try { firebaseConfig = JSON.parse(customCfg); } catch(e){}
-        }
+    function initFirebase() {
+      const savedConfig = localStorage.getItem('firebase_config');
+      const config = savedConfig ? JSON.parse(savedConfig) : defaultConfig;
 
-        // Initialize Firebase
-        let app = initializeApp(firebaseConfig);
-        let auth = getAuth(app);
-        let db = getFirestore(app);
+      try {
+        const app = initializeApp(config);
+        const auth = getAuth(app);
+        db = getFirestore(app);
+        taxCol = collection(db, "tax_submissions");
 
-        // Global dataset
-        window.taxData = [];
-        window.dbRef = null;
-        window.currentUser = null;
-
-        // Firebase Auth Init
-        async function initAuth() {
-            try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-            } catch (err) {
-                console.warn("Auth error, trying anonymous:", err);
-                try { await signInAnonymously(auth); } catch(e){}
-            }
-        }
-
-        onAuthStateChanged(auth, (user) => {
-            window.currentUser = user;
-            if (user) {
-                updateSyncBadge(true);
-                setupRealtimeListener();
-            } else {
-                updateSyncBadge(false);
-            }
+        signInAnonymously(auth).then(() => {
+          document.getElementById('syncStatus').innerHTML = "🟢 Firebase Online (Live Sync)";
+          document.getElementById('syncStatus').className = "inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+        }).catch(err => {
+          console.error("Auth error:", err);
         });
 
-        // Set up Firestore Realtime Snapshot Sync
-        function setupRealtimeListener() {
-            if (!window.currentUser) return;
+        onSnapshot(taxCol, (snapshot) => {
+          rawData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          updateDropdownLists();
+          window.applyFilters();
+        }, (error) => {
+          console.error("Firestore error:", error);
+          document.getElementById('syncStatus').innerHTML = "⚠️ Offline / Error Rules";
+          document.getElementById('syncStatus').className = "inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30";
+        });
+      } catch (e) {
+        console.error("Config init error:", e);
+      }
+    }
 
-            // Public Collection Path according to mandatory rules
-            const publicCollectionPath = collection(db, 'artifacts', appId, 'public', 'data', 'pajak_records');
+    function updateDropdownLists() {
+      const perumSet = new Set(['GSP', 'PW']);
+      const notarisSet = new Set(['DAHLIA', 'ANITA']);
 
-            onSnapshot(publicCollectionPath, (snapshot) => {
-                let records = [];
-                snapshot.forEach(docSnap => {
-                    records.push({
-                        docId: docSnap.id,
-                        ...docSnap.data()
-                    });
-                });
+      rawData.forEach(item => {
+        if (item.perumahan) perumSet.add(item.perumahan.toUpperCase());
+        if (item.notaris) notarisSet.add(item.notaris.toUpperCase());
+      });
 
-                // Sort by creation or number order
-                records.sort((a, b) => (a.no || 0) - (b.no || 0));
+      // Update Datalists & Filters
+      const perumDL = document.getElementById('perumList');
+      const notarisDL = document.getElementById('notarisList');
+      const perumFilter = document.getElementById('filterPerum');
+      const notarisFilter = document.getElementById('filterNotaris');
 
-                // If empty, insert sample initial data automatically
-                if (records.length === 0 && snapshot.metadata.fromCache === false) {
-                    seedInitialData(publicCollectionPath);
-                    return;
-                }
+      if (perumDL) perumDL.innerHTML = Array.from(perumSet).map(val => `<option value="${val}">`).join('');
+      if (notarisDL) notarisDL.innerHTML = Array.from(notarisSet).map(val => `<option value="${val}">`).join('');
 
-                window.taxData = records.map(r => ({ ...r, selected: true }));
-                window.updatePerumahanDropdownOptions();
-                window.applyFilters();
-                updateSyncBadge(true);
-            }, (error) => {
-                console.error("Firestore sync error:", error);
-                updateSyncBadge(false, "Sync Error");
-            });
+      if (perumFilter) {
+        const currVal = perumFilter.value;
+        perumFilter.innerHTML = '<option value="">Semua Perumahan</option>' + Array.from(perumSet).map(val => `<option value="${val}">${val}</option>`).join('');
+        perumFilter.value = currVal;
+      }
+
+      if (notarisFilter) {
+        const currVal = notarisFilter.value;
+        notarisFilter.innerHTML = '<option value="">Semua Notaris</option>' + Array.from(notarisSet).map(val => `<option value="${val}">Notaris ${val}</option>`).join('');
+        notarisFilter.value = currVal;
+      }
+    }
+
+    window.saveData = async function(event) {
+      event.preventDefault();
+      const editId = document.getElementById('editIndex').value;
+
+      const dataObj = {
+        jenisPengajuan: document.getElementById('jenisPengajuan').value,
+        namaKonsumen: document.getElementById('namaKonsumen').value.toUpperCase(),
+        nop: document.getElementById('nop').value,
+        perumahan: document.getElementById('perumahan').value.toUpperCase(),
+        blok: document.getElementById('blok').value.toUpperCase(),
+        kavling: document.getElementById('kavling').value,
+        luas: parseFloat(document.getElementById('luas').value) || 0,
+        ketType: document.getElementById('ketType').value,
+        hargaM2: parseFloat(document.getElementById('hargaM2').value) || 0,
+        hargaJual: parseFloat(document.getElementById('hargaJual').value) || 0,
+        tarifXSSP: parseFloat(document.getElementById('tarifXSSP').value) || 0,
+        tarifXBPHTB: parseFloat(document.getElementById('tarifXBPHTB').value) || 0,
+        notaris: document.getElementById('notaris').value.toUpperCase(),
+        ssp: parseFloat(document.getElementById('ssp').value) || 0,
+        bphtb: parseFloat(document.getElementById('bphtb').value) || 0,
+        valInput: parseFloat(document.getElementById('valInput').value) || 0,
+        biayaInput: parseFloat(document.getElementById('biayaInput').value) || 0,
+        biayaAdm: parseFloat(document.getElementById('biayaAdm').value) || 0,
+        keterangan: document.getElementById('keterangan').value,
+        updatedAt: new Date().toISOString()
+      };
+
+      try {
+        if (editId) {
+          await updateDoc(doc(db, "tax_submissions", editId), dataObj);
+        } else {
+          dataObj.selected = true;
+          await addDoc(taxCol, dataObj);
+        }
+        window.closeModal();
+      } catch (err) {
+        alert("Gagal menyimpan data: " + err.message);
+      }
+    };
+
+    window.deleteRow = async function(id) {
+      if (confirm("Apakah Anda yakin ingin menghapus data ini?")) {
+        try {
+          await deleteDoc(doc(db, "tax_submissions", id));
+        } catch (err) {
+          alert("Gagal menghapus data: " + err.message);
+        }
+      }
+    };
+
+    window.toggleRowSelect = async function(id, isChecked) {
+      try {
+        await updateDoc(doc(db, "tax_submissions", id), { selected: isChecked });
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    window.getRawData = () => rawData;
+
+    initFirebase();
+  </script>
+
+  <!-- Global Application Logic Script -->
+  <script>
+    function formatRp(num) {
+      return 'Rp ' + (num || 0).toLocaleString('id-ID');
+    }
+
+    function calculateFormValues() {
+      const jenis = document.getElementById('jenisPengajuan').value;
+      const luas = parseFloat(document.getElementById('luas').value) || 0;
+      const hargaM2 = parseFloat(document.getElementById('hargaM2').value) || 0;
+      let hargaJual = parseFloat(document.getElementById('hargaJual').value) || (luas * hargaM2);
+      
+      if (luas && hargaM2 && !document.getElementById('hargaJual').value) {
+        document.getElementById('hargaJual').value = hargaJual;
+      }
+
+      const tarifXSSP = (parseFloat(document.getElementById('tarifXSSP').value) || 2.5) / 100;
+      const tarifXBPHTB = (parseFloat(document.getElementById('tarifXBPHTB').value) || 5.0) / 100;
+
+      let ssp = 0, bphtb = 0;
+      if (jenis === "1") {
+        ssp = hargaJual * tarifXSSP;
+        bphtb = hargaJual * tarifXBPHTB;
+      } else if (jenis === "2") {
+        ssp = 0;
+        bphtb = hargaJual * tarifXBPHTB;
+      } else if (jenis === "3") {
+        ssp = hargaJual * tarifXSSP;
+        bphtb = 0;
+      }
+
+      document.getElementById('ssp').value = Math.round(ssp);
+      document.getElementById('bphtb').value = Math.round(bphtb);
+    }
+
+    function applyFilters() {
+      const data = window.getRawData ? window.getRawData() : [];
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const filterType = document.getElementById('filterType').value;
+      const filterPerum = document.getElementById('filterPerum').value;
+      const filterNotaris = document.getElementById('filterNotaris').value;
+
+      const filtered = data.filter(item => {
+        const matchSearch = (item.namaKonsumen || '').toLowerCase().includes(search) ||
+                            (item.nop || '').toLowerCase().includes(search) ||
+                            (item.blok || '').toLowerCase().includes(search) ||
+                            (item.keterangan || '').toLowerCase().includes(search);
+        const matchType = !filterType || item.jenisPengajuan === filterType;
+        const matchPerum = !filterPerum || (item.perumahan || '').toUpperCase() === filterPerum.toUpperCase();
+        const matchNotaris = !filterNotaris || (item.notaris || '').toUpperCase() === filterNotaris.toUpperCase();
+
+        return matchSearch && matchType && matchPerum && matchNotaris;
+      });
+
+      renderTable(filtered);
+    }
+
+    function renderTable(data) {
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '';
+
+      let totalCount = data.length;
+      let selectedCount = 0;
+      let totalBPHTB = 0;
+      let totalSSP = 0;
+      let totalOps = 0;
+
+      data.forEach((item, index) => {
+        const rowOps = (item.valInput || 0) + (item.biayaInput || 0) + (item.biayaAdm || 0);
+        
+        if (item.selected !== false) {
+          selectedCount++;
+          totalBPHTB += (item.bphtb || 0);
+          totalSSP += (item.ssp || 0);
+          totalOps += rowOps;
         }
 
-        // Helper to seed initial sample data to Firestore
-        async function seedInitialData(colRef) {
-            const initialSamples = [
-                { no: 1, nama: "TIEN KURNIASIH", nop: "57", blok: "E10", kav: 17, luas: 6, ket: "SEB", perum: "GSP", hrgM2: 1800000, xssp: 1.0, xbphtb: 5.0, hargaJual: 10800000, ssp: 108000, bphtb: 540000, validasi: 50000, biayaInput: 50000, biayaAdm: 2500, notaris: "DAHLIA", keterangan: "KURANG BAYAR PAJAK", jenisPengajuan: "KB_SSP", docs: {} },
-                { no: 2, nama: "ZAKARIA", nop: "103", blok: "CC7", kav: 11, luas: 3, ket: "HOOK", perum: "GSP", hrgM2: 651163, xssp: 2.5, xbphtb: 5.0, hargaJual: 1953489, ssp: 48837, bphtb: 97674, validasi: 50000, biayaInput: 50000, biayaAdm: 2500, notaris: "DAHLIA", keterangan: "KURANG BAYAR PAJAK", jenisPengajuan: "FULL", docs: {} },
-                { no: 3, nama: "MARIANI SIHOMBING", nop: "21", blok: "GG7", kav: 11, luas: 15, ket: "HOOK", perum: "GSP", hrgM2: 614000, xssp: 2.5, xbphtb: 5.0, hargaJual: 9210000, ssp: 230250, bphtb: 460500, validasi: 50000, biayaInput: 50000, biayaAdm: 2500, notaris: "DAHLIA", keterangan: "KURANG BAYAR PAJAK", jenisPengajuan: "KB_BPHTB", docs: {} },
-                { no: 4, nama: "BUDI PRASETYO", nop: "103", blok: "BB5", kav: 15, luas: 48, ket: "SEB", perum: "GSP", hrgM2: 1200000, xssp: 1.0, xbphtb: 5.0, hargaJual: 76000000, ssp: 760000, bphtb: 3800000, validasi: 50000, biayaInput: 50000, biayaAdm: 2500, notaris: "DAHLIA", keterangan: "pajak baru dahlia sudah ada ajb terbaru", jenisPengajuan: "FULL", docs: {} }
-            ];
-
-            for (let sample of initialSamples) {
-                const newDocRef = doc(colRef);
-                await setDoc(newDocRef, sample);
-            }
-        }
-
-        function updateSyncBadge(isOnline, msg = null) {
-            const el = document.getElementById('syncStatus');
-            if (!el) return;
-            if (isOnline) {
-                el.className = "inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40";
-                el.innerHTML = `<i class="fa-solid fa-cloud text-[9px]"></i> Firebase Online (Live Sync)`;
-            } else {
-                el.className = "inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40";
-                el.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-[9px]"></i> ${msg || 'Offline'}`;
-            }
-        }
-
-        // Global Firestore Save Action
-        window.saveRecordToFirestore = async function(recordData, docId = null) {
-            if (!window.currentUser) {
-                alert("Database belum terhubung. Mencoba menghubungkan kembali...");
-                await initAuth();
-            }
-
-            const colPath = collection(db, 'artifacts', appId, 'public', 'data', 'pajak_records');
-            
-            try {
-                if (docId) {
-                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'pajak_records', docId);
-                    await updateDoc(docRef, recordData);
-                } else {
-                    const newDocRef = doc(colPath);
-                    await setDoc(newDocRef, recordData);
-                }
-            } catch (err) {
-                console.error("Gagal menyimpan ke Firestore:", err);
-                alert("Gagal menyimpan data: " + err.message);
-            }
-        };
-
-        // Global Firestore Delete Action
-        window.deleteRecordFromFirestore = async function(docId) {
-            if (!docId) return;
-            try {
-                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'pajak_records', docId);
-                await deleteDoc(docRef);
-            } catch (err) {
-                console.error("Gagal menghapus data:", err);
-            }
-        };
-
-        initAuth();
-    </script>
-
-    <!-- UI Helper Scripts -->
-    <script>
-        function formatRupiah(num) {
-            if (num === null || num === undefined || isNaN(num) || num === 0) return 'Rp 0';
-            return 'Rp ' + Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-        }
-
-        let currentEditingDocRowId = null;
-
-        function updatePerumahanDropdownOptions() {
-            const datalist = document.getElementById('perumahanOptions');
-            const filterSelect = document.getElementById('filterPerum');
-            if (!datalist || !filterSelect) return;
-
-            const selectedFilterVal = filterSelect.value;
-            const uniquePerum = new Set(['GSP', 'PW']);
-
-            (window.taxData || []).forEach(item => {
-                if (item.perum && item.perum.trim() !== '') {
-                    uniquePerum.add(item.perum.toUpperCase().trim());
-                }
-            });
-
-            datalist.innerHTML = '';
-            filterSelect.innerHTML = '<option value="">Semua Perumahan</option>';
-
-            uniquePerum.forEach(p => {
-                datalist.innerHTML += `<option value="${p}">`;
-                filterSelect.innerHTML += `<option value="${p}">${p}</option>`;
-            });
-
-            filterSelect.value = selectedFilterVal;
-        }
-
-        function renderTable(dataToRender) {
-            const tbody = document.getElementById('tableBody');
-            tbody.innerHTML = '';
-
-            if (!dataToRender || dataToRender.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="22" class="text-center py-8 text-slate-400">Tidak ada data yang sesuai dengan pencarian / filter.</td></tr>`;
-                updateFooters([]);
-                return;
-            }
-
-            dataToRender.forEach((row, index) => {
-                const tr = document.createElement('tr');
-                tr.className = `hover:bg-slate-50 transition border-b border-slate-100 ${!row.selected ? 'print-exclude' : ''}`;
-
-                let badgeClass = "bg-slate-100 text-slate-600";
-                if (row.jenisPengajuan === 'KB_SSP' || row.jenisPengajuan === 'KB_BPHTB' || (row.keterangan && row.keterangan.toLowerCase().includes("kurang bayar"))) {
-                    badgeClass = "bg-rose-50 text-rose-600 border border-rose-200";
-                } else if (row.keterangan && row.keterangan.toLowerCase().includes("talangi")) {
-                    badgeClass = "bg-amber-50 text-amber-600 border border-amber-200";
-                } else if (row.keterangan && row.keterangan.trim() !== "") {
-                    badgeClass = "bg-emerald-50 text-emerald-600 border border-emerald-200";
-                }
-
-                const docCount = row.docs ? Object.keys(row.docs).length : 0;
-                let docBadgeColor = docCount === 4 ? "bg-emerald-100 text-emerald-700" : (docCount > 0 ? "bg-amber-100 text-amber-700" : "bg-slate-100 text-slate-500");
-
-                const sspDisplay = (row.jenisPengajuan === 'BPHTB_ONLY' || row.jenisPengajuan === 'KB_BPHTB') ? '<span class="text-slate-300">-</span>' : formatRupiah(row.ssp);
-                const bphtbDisplay = (row.jenisPengajuan === 'SSP_ONLY' || row.jenisPengajuan === 'KB_SSP') ? '<span class="text-slate-300">-</span>' : formatRupiah(row.bphtb);
-
-                tr.innerHTML = `
-                    <td class="p-3 text-center border-r border-slate-100 no-print col-select">
-                        <input type="checkbox" ${row.selected ? 'checked' : ''} onchange="toggleRowSelection('${row.docId}', this.checked)" class="rounded text-brand-600 focus:ring-brand-500 cursor-pointer">
-                    </td>
-                    <td class="p-3 text-center border-r border-slate-100 font-semibold">${index + 1}</td>
-                    <td class="p-3 font-semibold text-slate-800 border-r border-slate-100 col-nama">${row.nama}</td>
-                    <td class="p-3 text-center border-r border-slate-100 font-mono">${row.nop || '-'}</td>
-                    <td class="p-3 text-center border-r border-slate-100">${row.blok || '-'}</td>
-                    <td class="p-3 text-center border-r border-slate-100">${row.kav || '-'}</td>
-                    <td class="p-3 text-center border-r border-slate-100 font-mono">${row.luas || '-'}</td>
-                    <td class="p-3 text-center border-r border-slate-100"><span class="px-1.5 py-0.5 rounded text-[10px] bg-slate-100 font-mono">${row.ket}</span></td>
-                    <td class="p-3 text-center border-r border-slate-100 font-bold text-brand-700">${row.perum}</td>
-                    <td class="p-3 text-right border-r border-slate-100 font-mono">${row.hrgM2 ? formatRupiah(row.hrgM2) : '-'}</td>
-                    <td class="p-3 text-center border-r border-slate-100 font-mono">${row.xssp ? row.xssp.toFixed(1) + '%' : '-'}</td>
-                    <td class="p-3 text-center border-r border-slate-100 font-mono">${row.xbphtb ? row.xbphtb.toFixed(1) + '%' : '-'}</td>
-                    <td class="p-3 text-right border-r border-slate-100 font-mono font-semibold bg-slate-50">${formatRupiah(row.hargaJual)}</td>
-                    <td class="p-3 text-right border-r border-slate-100 font-mono font-semibold text-indigo-700 bg-indigo-50/30">${sspDisplay}</td>
-                    <td class="p-3 text-right border-r border-slate-100 font-mono font-semibold text-amber-700 bg-amber-50/30">${bphtbDisplay}</td>
-                    <td class="p-3 text-right border-r border-slate-100 font-mono">${formatRupiah(row.validasi)}</td>
-                    <td class="p-3 text-right border-r border-slate-100 font-mono">${formatRupiah(row.biayaInput)}</td>
-                    <td class="p-3 text-right border-r border-slate-100 font-mono">${formatRupiah(row.biayaAdm)}</td>
-                    <td class="p-3 text-center border-r border-slate-100 col-notaris"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${row.notaris === 'DAHLIA' ? 'bg-pink-100 text-pink-700' : 'bg-cyan-100 text-cyan-700'}">${row.notaris}</span></td>
-                    <td class="p-3 border-r border-slate-100 col-keterangan">${row.keterangan ? `<span class="px-2 py-0.5 rounded text-[10px] font-medium inline-block ${badgeClass}">${row.keterangan}</span>` : '-'}</td>
-                    <td class="p-3 text-center border-r border-slate-100 no-print col-docs">
-                        <button onclick="openDocsModal('${row.docId}')" class="px-2.5 py-1 rounded text-[11px] font-semibold ${docBadgeColor} hover:opacity-80 transition border border-slate-200 flex items-center gap-1 mx-auto">
-                            <i class="fa-solid fa-folder-open"></i> ${docCount}/4 Berkas
-                        </button>
-                    </td>
-                    <td class="p-3 text-center no-print col-aksi">
-                        <div class="flex items-center justify-center space-x-1">
-                            <button onclick="editRowByDocId('${row.docId}')" class="p-1 hover:bg-slate-200 text-slate-600 rounded" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button onclick="deleteRowByDocId('${row.docId}')" class="p-1 hover:bg-rose-100 text-rose-600 rounded" title="Hapus"><i class="fa-solid fa-trash"></i></button>
-                        </div>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-
-            updateFooters(dataToRender);
-        }
-
-        function handleJenisPengajuanChange() {
-            const jenis = document.getElementById('inputJenisPengajuan').value;
-            const boxSsp = document.getElementById('boxInputSsp');
-            const boxBphtb = document.getElementById('boxInputBphtb');
-
-            if (jenis === 'BPHTB_ONLY' || jenis === 'KB_BPHTB') {
-                boxSsp.classList.add('opacity-40');
-                boxBphtb.classList.remove('opacity-40');
-            } else if (jenis === 'SSP_ONLY' || jenis === 'KB_SSP') {
-                boxBphtb.classList.add('opacity-40');
-                boxSsp.classList.remove('opacity-40');
-            } else {
-                boxSsp.classList.remove('opacity-40');
-                boxBphtb.classList.remove('opacity-40');
-            }
-            autoCalculateTaxes();
-        }
-
-        function autoCalculateTaxes() {
-            const luas = parseFloat(document.getElementById('inputLuas').value) || 0;
-            const hrgM2 = parseFloat(document.getElementById('inputHrgM2').value) || 0;
-            let hargaJual = parseFloat(document.getElementById('inputHargaJual').value);
-
-            if (!hargaJual && luas && hrgM2) {
-                hargaJual = luas * hrgM2;
-                document.getElementById('inputHargaJual').value = hargaJual;
-            }
-
-            const xssp = parseFloat(document.getElementById('inputXssp').value) || 2.5;
-            const xbphtb = parseFloat(document.getElementById('inputXbphtb').value) || 5.0;
-            const jenis = document.getElementById('inputJenisPengajuan').value;
-
-            if (hargaJual > 0) {
-                if (jenis === 'FULL' || jenis === 'SSP_ONLY') {
-                    document.getElementById('inputSsp').value = Math.round(hargaJual * (xssp / 100));
-                }
-                if (jenis === 'FULL' || jenis === 'BPHTB_ONLY') {
-                    document.getElementById('inputBphtb').value = Math.round(hargaJual * (xbphtb / 100));
-                }
-            }
-        }
-
-        function updateFooters(data) {
-            let totBphtb = 0;
-            let totSsp = 0;
-            let totValidasi = 0;
-            let totInput = 0;
-            let totAdm = 0;
-
-            (data || []).forEach(curr => {
-                const j = curr.jenisPengajuan || 'FULL';
-                
-                if (j === 'FULL' || j === 'SSP_ONLY' || j === 'KB_SSP') {
-                    totSsp += (curr.ssp || 0);
-                }
-                if (j === 'FULL' || j === 'BPHTB_ONLY' || j === 'KB_BPHTB') {
-                    totBphtb += (curr.bphtb || 0);
-                }
-
-                totValidasi += (curr.validasi || 0);
-                totInput += (curr.biayaInput || 0);
-                totAdm += (curr.biayaAdm || 0);
-            });
-
-            const grandTotalPajak = totBphtb + totSsp;
-            const totOperasional = totValidasi + totInput + totAdm;
-
-            document.getElementById('foot-ssp').innerText = formatRupiah(totSsp);
-            document.getElementById('foot-bphtb').innerText = formatRupiah(totBphtb);
-            document.getElementById('foot-validasi').innerText = formatRupiah(totValidasi);
-            document.getElementById('foot-input').innerText = formatRupiah(totInput);
-            document.getElementById('foot-adm').innerText = formatRupiah(totAdm);
-            document.getElementById('foot-grand-total').innerText = formatRupiah(grandTotalPajak + totOperasional);
-
-            document.getElementById('card-total-count').innerText = (window.taxData || []).length;
-            document.getElementById('card-total-bphtb').innerText = formatRupiah(totBphtb);
-            document.getElementById('card-total-ssp').innerText = formatRupiah(totSsp);
-            document.getElementById('card-total-operasional').innerText = formatRupiah(totOperasional);
-            document.getElementById('card-grand-total').innerText = formatRupiah(grandTotalPajak + totOperasional);
-
-            updatePrintButtonLabel();
-            updateSelectedSummary();
-        }
-
-        function getCurrentFilteredData() {
-            const searchVal = document.getElementById('searchInput').value.toLowerCase();
-            const filterJenis = document.getElementById('filterJenis').value;
-            const filterPerum = document.getElementById('filterPerum').value;
-            const filterNotaris = document.getElementById('filterNotaris').value;
-
-            return (window.taxData || []).filter(item => {
-                const matchesSearch = (
-                    (item.nama && item.nama.toLowerCase().includes(searchVal)) ||
-                    (item.nop && item.nop.toLowerCase().includes(searchVal)) ||
-                    (item.blok && item.blok.toLowerCase().includes(searchVal)) ||
-                    (item.keterangan && item.keterangan.toLowerCase().includes(searchVal))
-                );
-
-                const matchesJenis = filterJenis === "" || (item.jenisPengajuan || 'FULL') === filterJenis;
-                const matchesPerum = filterPerum === "" || item.perum === filterPerum;
-                const matchesNotaris = filterNotaris === "" || item.notaris === filterNotaris;
-
-                return matchesSearch && matchesJenis && matchesPerum && matchesNotaris;
-            });
-        }
-
-        function applyFilters() {
-            renderTable(getCurrentFilteredData());
-        }
-
-        function resetFilters() {
-            document.getElementById('searchInput').value = '';
-            document.getElementById('filterJenis').value = '';
-            document.getElementById('filterPerum').value = '';
-            document.getElementById('filterNotaris').value = '';
-            renderTable(window.taxData || []);
-        }
-
-        function openModal() {
-            document.getElementById('editDocId').value = "";
-            document.getElementById('modalTitle').innerText = "Tambah Data Pengajuan Pajak";
-            document.getElementById('taxForm').reset();
-            document.getElementById('inputJenisPengajuan').value = "FULL";
-            handleJenisPengajuanChange();
-            document.getElementById('dataModal').classList.remove('hidden');
-        }
-
-        function closeModal() {
-            document.getElementById('dataModal').classList.add('hidden');
-        }
-
-        function editRowByDocId(docId) {
-            const item = (window.taxData || []).find(d => d.docId === docId);
-            if (!item) return;
-
-            document.getElementById('editDocId').value = docId;
-            document.getElementById('modalTitle').innerText = "Edit Data Pajak: " + item.nama;
-
-            document.getElementById('inputJenisPengajuan').value = item.jenisPengajuan || 'FULL';
-            document.getElementById('inputNama').value = item.nama;
-            document.getElementById('inputNop').value = item.nop || '';
-            document.getElementById('inputPerum').value = item.perum || '';
-            document.getElementById('inputBlok').value = item.blok || '';
-            document.getElementById('inputKav').value = item.kav || '';
-            document.getElementById('inputLuas').value = item.luas || '';
-            document.getElementById('inputKetType').value = item.ket || 'SEB';
-            document.getElementById('inputHrgM2').value = item.hrgM2 || '';
-            document.getElementById('inputXssp').value = item.xssp || 2.5;
-            document.getElementById('inputXbphtb').value = item.xbphtb || 5.0;
-            document.getElementById('inputHargaJual').value = item.hargaJual || '';
-            document.getElementById('inputSsp').value = item.ssp || 0;
-            document.getElementById('inputBphtb').value = item.bphtb || 0;
-            document.getElementById('inputValidasi').value = item.validasi !== undefined ? item.validasi : 50000;
-            document.getElementById('inputBiayaInput').value = item.biayaInput !== undefined ? item.biayaInput : 50000;
-            document.getElementById('inputBiayaAdm').value = item.biayaAdm !== undefined ? item.biayaAdm : 2500;
-            document.getElementById('inputNotaris').value = item.notaris || 'DAHLIA';
-            document.getElementById('inputKet').value = item.keterangan || '';
-
-            handleJenisPengajuanChange();
-            document.getElementById('dataModal').classList.remove('hidden');
-        }
-
-        async function deleteRowByDocId(docId) {
-            if (confirm("Apakah Anda yakin ingin menghapus data transaksi pajak ini dari database?")) {
-                await window.deleteRecordFromFirestore(docId);
-            }
-        }
-
-        async function saveData(e) {
-            e.preventDefault();
-            const docId = document.getElementById('editDocId').value;
-            const luas = parseFloat(document.getElementById('inputLuas').value) || 0;
-            const hrgM2 = parseFloat(document.getElementById('inputHrgM2').value) || 0;
-            const xssp = parseFloat(document.getElementById('inputXssp').value) || 0;
-            const xbphtb = parseFloat(document.getElementById('inputXbphtb').value) || 0;
-            const jenis = document.getElementById('inputJenisPengajuan').value;
-
-            let calculatedHargaJual = parseFloat(document.getElementById('inputHargaJual').value) || 0;
-            let valSsp = parseFloat(document.getElementById('inputSsp').value) || 0;
-            let valBphtb = parseFloat(document.getElementById('inputBphtb').value) || 0;
-
-            const existingItem = docId ? (window.taxData || []).find(d => d.docId === docId) : null;
-
-            const record = {
-                no: existingItem ? existingItem.no : (window.taxData ? window.taxData.length + 1 : 1),
-                nama: document.getElementById('inputNama').value,
-                nop: document.getElementById('inputNop').value,
-                perum: document.getElementById('inputPerum').value.toUpperCase().trim(),
-                blok: document.getElementById('inputBlok').value,
-                kav: parseInt(document.getElementById('inputKav').value) || 0,
-                luas: luas,
-                ket: document.getElementById('inputKetType').value,
-                hrgM2: hrgM2,
-                xssp: xssp,
-                xbphtb: xbphtb,
-                hargaJual: calculatedHargaJual,
-                ssp: valSsp,
-                bphtb: valBphtb,
-                validasi: parseFloat(document.getElementById('inputValidasi').value) || 0,
-                biayaInput: parseFloat(document.getElementById('inputBiayaInput').value) || 0,
-                biayaAdm: parseFloat(document.getElementById('inputBiayaAdm').value) || 0,
-                notaris: document.getElementById('inputNotaris').value.toUpperCase(),
-                keterangan: document.getElementById('inputKet').value,
-                jenisPengajuan: jenis,
-                docs: existingItem && existingItem.docs ? existingItem.docs : {}
-            };
-
-            closeModal();
-            await window.saveRecordToFirestore(record, docId || null);
-        }
-
-        // CSV Export matching exact image header order: NO, NAMA KONSUMEN, NOP, BLOK, KAV, LUAS, KET, PERUM, HRG/M2, XSSP, XBPHTB, HARGA JUAL, VALIDASI BIAYA INPUT, BIAYA INPUT, BIAYA ADM, NOTARIS, KETERANGAN
-        function exportToCSV() {
-            let csv = 'NO,NAMA KONSUMEN,NOP,BLOK,KAV,LUAS,KET,PERUM,HRG/M2,XSSP,XBPHTB,HARGA JUAL,VALIDASI BIAYA INPUT,BIAYA INPUT,BIAYA ADM,NOTARIS,KETERANGAN\n';
-            const dataToExport = getCurrentFilteredData();
-            
-            dataToExport.forEach((d, index) => {
-                csv += `"${index + 1}","${d.nama || ''}","${d.nop || ''}","${d.blok || ''}","${d.kav || ''}","${d.luas || ''}","${d.ket || ''}","${d.perum || ''}","${d.hrgM2 || ''}","${d.xssp || ''}%","${d.xbphtb || ''}%","${d.hargaJual || 0}","${d.validasi || 0}","${d.biayaInput || 0}","${d.biayaAdm || 0}","${d.notaris || ''}","${d.keterangan || ''}"\n`;
-            });
-
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            const url = URL.createObjectURL(blob);
-            link.setAttribute("href", url);
-            link.setAttribute("download", "Pengajuan_Pajak_BPHTB_SSP.csv");
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        function toggleRowSelection(docId, isChecked) {
-            const item = (window.taxData || []).find(d => d.docId === docId);
-            if (item) item.selected = isChecked;
-            updatePrintButtonLabel();
-            updateSelectedSummary();
-        }
-
-        function toggleSelectAll(masterCheckbox) {
-            selectAllRows(masterCheckbox.checked);
-        }
-
-        function selectAllRows(status) {
-            const masterCheckbox = document.getElementById('selectAllCheckbox');
-            if (masterCheckbox) masterCheckbox.checked = status;
-
-            (window.taxData || []).forEach(d => d.selected = status);
-            const checkboxes = document.querySelectorAll('#tableBody input[type="checkbox"]');
-            checkboxes.forEach(cb => cb.checked = status);
-            
-            updatePrintButtonLabel();
-            updateSelectedSummary();
-        }
-
-        function updatePrintButtonLabel() {
-            const selectedCount = (window.taxData || []).filter(d => d.selected).length;
-            const printLabel = document.getElementById('printBtnLabel');
-            if (!printLabel) return;
-
-            if (selectedCount === 0 || selectedCount === (window.taxData || []).length) {
-                printLabel.innerText = "Cetak Semua";
-            } else {
-                printLabel.innerText = `Cetak Pilihan (${selectedCount})`;
-            }
-        }
-
-        function updateSelectedSummary() {
-            const selectedCount = (window.taxData || []).filter(d => d.selected).length;
-            const cardSelected = document.getElementById('card-selected-count');
-            if (cardSelected) cardSelected.innerText = selectedCount;
-        }
-
-        function printSelectedOrAll() {
-            renderTable(getCurrentFilteredData());
-            setTimeout(() => {
-                window.print();
-            }, 100);
-        }
-
-        // Firebase Custom Configuration Handlers
-        function openConfigModal() {
-            document.getElementById('firebaseConfigModal').classList.remove('hidden');
-        }
-        function closeConfigModal() {
-            document.getElementById('firebaseConfigModal').classList.add('hidden');
-        }
-        function saveCustomFirebaseConfig() {
-            const val = document.getElementById('customFirebaseInput').value;
-            try {
-                JSON.parse(val);
-                localStorage.setItem('custom_firebase_config', val);
-                alert("Konfigurasi Firebase diperbarui. Halaman akan dimuat ulang...");
-                window.location.reload();
-            } catch(e) {
-                alert("Format JSON tidak valid!");
-            }
-        }
-        function resetDefaultFirebase() {
-            localStorage.removeItem('custom_firebase_config');
-            alert("Memulihkan ke koneksi default...");
-            window.location.reload();
-        }
-
-        // Document Upload & Preview Functions
-        function openDocsModal(docId) {
-            currentEditingDocRowId = docId;
-            const item = (window.taxData || []).find(d => d.docId === docId);
-            if (!item) return;
-
-            document.getElementById('docsModalTitle').innerText = "Kelola Bukti Bayar & Validasi";
-            document.getElementById('docsModalSub').innerText = `Konsumen: ${item.nama} | Perumahan: ${item.perum} ${item.blok}/${item.kav}`;
-
-            const docTypes = ['sspBayar', 'sspValidasi', 'bphtbBayar', 'bphtbValidasi'];
-            docTypes.forEach(type => {
-                const previewEl = document.getElementById(`preview-${type}`);
-                const badgeEl = document.getElementById(`badge-${type}`);
-                const nameEl = document.getElementById(`name-${type}`);
-                
-                if (item.docs && item.docs[type]) {
-                    previewEl.classList.remove('hidden');
-                    badgeEl.innerText = "Sudah Upload";
-                    badgeEl.className = "text-[10px] px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 font-bold";
-                    nameEl.innerText = item.docs[type].fileName;
-                } else {
-                    previewEl.classList.add('hidden');
-                    badgeEl.innerText = "Belum Upload";
-                    badgeEl.className = "text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-500 font-medium";
-                }
-            });
-
-            document.getElementById('docsModal').classList.remove('hidden');
-        }
-
-        function closeDocsModal() {
-            document.getElementById('docsModal').classList.add('hidden');
-        }
-
-        async function uploadFile(docType, inputEl) {
-            const file = inputEl.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                const fileDataUrl = e.target.result;
-                const item = (window.taxData || []).find(d => d.docId === currentEditingDocRowId);
-                if (!item) return;
-
-                if (!item.docs) item.docs = {};
-                item.docs[docType] = {
-                    fileName: file.name,
-                    fileData: fileDataUrl,
-                    uploadedAt: new Date().toISOString()
-                };
-
-                await window.saveRecordToFirestore({ docs: item.docs }, item.docId);
-                openDocsModal(currentEditingDocRowId);
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function viewDoc(docType) {
-            const item = (window.taxData || []).find(d => d.docId === currentEditingDocRowId);
-            if (!item || !item.docs || !item.docs[docType]) return;
-
-            const fileObj = item.docs[docType];
-            const contentContainer = document.getElementById('fileViewerContent');
-            document.getElementById('fileViewerTitle').innerText = `Preview: ${fileObj.fileName}`;
-
-            if (fileObj.fileData.startsWith('data:image/')) {
-                contentContainer.innerHTML = `<img src="${fileObj.fileData}" class="max-h-[60vh] object-contain rounded shadow">`;
-            } else {
-                contentContainer.innerHTML = `<iframe src="${fileObj.fileData}" class="w-full h-[50vh] rounded"></iframe>`;
-            }
-
-            document.getElementById('fileViewerModal').classList.remove('hidden');
-        }
-
-        function closeViewerModal() {
-            document.getElementById('fileViewerModal').classList.add('hidden');
-        }
-
-        function editAppTitle() {
-            const currentTitle = document.getElementById('appTitleText').innerText;
-            const newTitle = prompt("Masukkan Judul Aplikasi/Laporan Baru:", currentTitle);
-            if (newTitle && newTitle.trim() !== "") {
-                document.getElementById('appTitleText').innerText = newTitle;
-                document.getElementById('printTitleText').innerText = newTitle;
-            }
-        }
-
-        function editSubtitle() {
-            const currentSub = document.getElementById('appSubtitleText').innerText;
-            const newSub = prompt("Masukkan Sub-Judul Baru:", currentSub);
-            if (newSub && newSub.trim() !== "") {
-                document.getElementById('appSubtitleText').innerText = newSub;
-            }
-        }
-
-        window.onload = function() {
-            const today = new Date();
-            const dateStr = today.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
-            const printDateEl = document.getElementById('printDate');
-            if (printDateEl) printDateEl.innerText = dateStr;
-        };
-    </script>
+        const tr = document.createElement('tr');
+        tr.className = `hover:bg-slate-50 border-b border-slate-200 transition ${item.selected === false ? 'opacity-50 bg-slate-50/50' : ''}`;
+        tr.innerHTML = `
+          <td class="p-3 text-center no-print"><input type="checkbox" ${item.selected !== false ? 'checked' : ''} onchange="toggleRowSelect('${item.id}', this.checked)"></td>
+          <td class="p-3 text-center font-medium">${index + 1}</td>
+          <td class="p-3 font-bold text-slate-900">${item.namaKonsumen || '-'}</td>
+          <td class="p-3 font-mono">${item.nop || '-'}</td>
+          <td class="p-3 font-semibold">${item.blok || '-'}</td>
+          <td class="p-3">${item.kavling || '-'}</td>
+          <td class="p-3 text-right">${item.luas || 0}</td>
+          <td class="p-3 text-center"><span class="px-1.5 py-0.5 bg-slate-100 border rounded text-[10px] font-bold">${item.ketType || '-'}</span></td>
+          <td class="p-3 font-bold text-brand-700">${item.perumahan || '-'}</td>
+          <td class="p-3 text-right">${formatRp(item.hargaM2)}</td>
+          <td class="p-3 text-right">${item.tarifXSSP || 0}%</td>
+          <td class="p-3 text-right">${item.tarifXBPHTB || 0}%</td>
+          <td class="p-3 text-right font-semibold">${formatRp(item.hargaJual)}</td>
+          <td class="p-3 text-right font-bold text-brand-600">${formatRp(item.ssp)}</td>
+          <td class="p-3 text-right font-bold text-amber-600">${formatRp(item.bphtb)}</td>
+          <td class="p-3 text-right">${formatRp(item.valInput)}</td>
+          <td class="p-3 text-right">${formatRp(item.biayaInput)}</td>
+          <td class="p-3 text-right">${formatRp(item.biayaAdm)}</td>
+          <td class="p-3 text-right font-bold bg-slate-50">${formatRp(rowOps)}</td>
+          <td class="p-3 font-semibold">${item.notaris || '-'}</td>
+          <td class="p-3 text-slate-500 italic max-w-[150px] truncate">${item.keterangan || '-'}</td>
+          <td class="p-3 text-center no-print space-x-1">
+            <button onclick="editRow('${item.id}')" class="p-1 bg-amber-100 hover:bg-amber-200 text-amber-800 rounded transition" title="Edit">✏️</button>
+            <button onclick="deleteRow('${item.id}')" class="p-1 bg-red-100 hover:bg-red-200 text-red-800 rounded transition" title="Hapus">🗑️</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('statTotalCount').innerText = totalCount;
+      document.getElementById('statSelectedCount').innerText = selectedCount;
+      document.getElementById('statTotalBPHTB').innerText = formatRp(totalBPHTB);
+      document.getElementById('statTotalSSP').innerText = formatRp(totalSSP);
+      document.getElementById('statTotalOps').innerText = formatRp(totalOps);
+      document.getElementById('statGrandTotal').innerText = formatRp(totalBPHTB + totalSSP + totalOps);
+    }
+
+    function openModal() {
+      document.getElementById('taxForm').reset();
+      document.getElementById('editIndex').value = '';
+      document.getElementById('modalTitle').innerText = 'Tambah Data Pengajuan Pajak';
+      document.getElementById('dataModal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('dataModal').classList.add('hidden');
+    }
+
+    function editRow(id) {
+      const data = window.getRawData().find(d => d.id === id);
+      if (!data) return;
+
+      document.getElementById('editIndex').value = id;
+      document.getElementById('jenisPengajuan').value = data.jenisPengajuan || "1";
+      document.getElementById('namaKonsumen').value = data.namaKonsumen || '';
+      document.getElementById('nop').value = data.nop || '';
+      document.getElementById('perumahan').value = data.perumahan || '';
+      document.getElementById('blok').value = data.blok || '';
+      document.getElementById('kavling').value = data.kavling || '';
+      document.getElementById('luas').value = data.luas || '';
+      document.getElementById('ketType').value = data.ketType || 'SEB';
+      document.getElementById('hargaM2').value = data.hargaM2 || '';
+      document.getElementById('hargaJual').value = data.hargaJual || '';
+      document.getElementById('tarifXSSP').value = data.tarifXSSP || 2.5;
+      document.getElementById('tarifXBPHTB').value = data.tarifXBPHTB || 5.0;
+      document.getElementById('notaris').value = data.notaris || '';
+      document.getElementById('ssp').value = data.ssp || 0;
+      document.getElementById('bphtb').value = data.bphtb || 0;
+      document.getElementById('valInput').value = data.valInput || 50000;
+      document.getElementById('biayaInput').value = data.biayaInput || 50000;
+      document.getElementById('biayaAdm').value = data.biayaAdm || 2500;
+      document.getElementById('keterangan').value = data.keterangan || '';
+
+      document.getElementById('modalTitle').innerText = 'Edit Data Pengajuan Pajak';
+      document.getElementById('dataModal').classList.remove('hidden');
+    }
+
+    function openConfigModal() {
+      const curr = localStorage.getItem('firebase_config');
+      if (curr) document.getElementById('configJsonInput').value = curr;
+      document.getElementById('configModal').classList.remove('hidden');
+    }
+
+    function closeConfigModal() {
+      document.getElementById('configModal').classList.add('hidden');
+    }
+
+    function saveConfig() {
+      const val = document.getElementById('configJsonInput').value.trim();
+      try {
+        JSON.parse(val);
+        localStorage.setItem('firebase_config', val);
+        alert('Konfigurasi disimpan! Halaman akan direfresh.');
+        location.reload();
+      } catch (e) {
+        alert('Format JSON tidak valid!');
+      }
+    }
+
+    function resetConfig() {
+      localStorage.removeItem('firebase_config');
+      alert('Konfigurasi dikembalikan ke default! Halaman akan direfresh.');
+      location.reload();
+    }
+
+    function resetFilters() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('filterType').value = '';
+      document.getElementById('filterPerum').value = '';
+      document.getElementById('filterNotaris').value = '';
+      applyFilters();
+    }
+
+    function exportToCSV() {
+      const data = window.getRawData ? window.getRawData() : [];
+      if (data.length === 0) return alert("Tidak ada data untuk diexport!");
+
+      let csv = "No,Nama Konsumen,NOP,Perumahan,Blok,Kavling,Luas,Type,Harga M2,Harga Jual,SSP,BPHTB,Val Input,Biaya Input,Biaya Adm,Total Ops,Notaris,Keterangan\n";
+      data.forEach((item, idx) => {
+        const ops = (item.valInput||0) + (item.biayaInput||0) + (item.biayaAdm||0);
+        csv += `"${idx+1}","${item.namaKonsumen||''}","${item.nop||''}","${item.perumahan||''}","${item.blok||''}","${item.kavling||''}","${item.luas||0}","${item.ketType||''}","${item.hargaM2||0}","${item.hargaJual||0}","${item.ssp||0}","${item.bphtb||0}","${item.valInput||0}","${item.biayaInput||0}","${item.biayaAdm||0}","${ops}","${item.notaris||''}","${item.keterangan||''}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.setAttribute("download", `pengajuan_pajak_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  </script>
 </body>
 </html>
